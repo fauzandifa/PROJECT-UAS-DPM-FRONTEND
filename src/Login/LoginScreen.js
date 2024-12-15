@@ -1,51 +1,74 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 
 const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Fungsi untuk menangani login
   const handleLogin = () => {
-    // Logika untuk melakukan login
-    // Jika berhasil, navigasi ke halaman HomeScreen
-    navigation.navigate("Home");
-  };
-
-  const handleRegister = () => {
-    // Navigasi ke halaman RegisterScreen
-    navigation.navigate("Register");
-  };
-
-  const handleForgotPassword = () => {
-    // Navigasi ke halaman ForgotPasswordScreen
-    navigation.navigate("ForgotPassword");
+    // Mengecek apakah email dan password sesuai
+    if (email === "123" && password === "123") {
+      navigation.navigate("Home"); // Arahkan ke HomeScreen jika cocok
+    } else {
+      alert("Invalid email or password");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Login here</Text>
+      <Text style={styles.subtitle}>Welcome back you've been missed!</Text>
       <TextInput
         style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry
+        secureTextEntry={true}
         value={password}
         onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      <Text
+        style={styles.forgotPassword}
+        onPress={() => navigation.navigate("ForgotPassword")}
+      >
+        Forgot your password?
+      </Text>
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.forgotButton} onPress={handleForgotPassword}>
-        <Text style={styles.forgotButtonText}>Lupa Password?</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-        <Text style={styles.registerButtonText}>Belum punya akun? Register</Text>
-      </TouchableOpacity>
+      <Text
+        style={styles.createAccount}
+        onPress={() => navigation.navigate("Register")}
+      >
+        Create new account
+      </Text>
+      <Text style={styles.continueText}>Or continue with</Text>
+      <View style={styles.iconContainer}>
+        <Image
+          source={{ uri: "https://placeholder-google-icon" }}
+          style={styles.icon}
+        />
+        <Image
+          source={{ uri: "https://placeholder-apple-icon" }}
+          style={styles.icon}
+        />
+        <Image
+          source={{ uri: "https://placeholder-facebook-icon" }}
+          style={styles.icon}
+        />
+      </View>
     </View>
   );
 };
@@ -53,46 +76,66 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
     textAlign: "center",
+    color: "#1e90ff",
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    borderColor: "gray",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    width: "100%",
+    padding: 12,
+    marginVertical: 10,
   },
-  button: {
-    backgroundColor: "blue",
-    paddingVertical: 10,
-    borderRadius: 5,
+  loginButton: {
+    backgroundColor: "#1e90ff",
+    padding: 15,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
     marginBottom: 10,
   },
   buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
-  forgotButton: {
+  forgotPassword: {
+    alignSelf: "flex-end",
+    color: "#1e90ff",
     marginBottom: 20,
   },
-  forgotButtonText: {
-    textAlign: "center",
-    color: "blue",
-    textDecorationLine: "underline",
+  createAccount: {
+    marginTop: 10,
+    color: "#666",
+    fontSize: 14,
   },
-  registerButton: {
-    marginTop: 20,
+  continueText: {
+    marginVertical: 10,
+    color: "#666",
   },
-  registerButtonText: {
-    textAlign: "center",
+  iconContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "50%",
+  },
+  icon: {
+    width: 40,
+    height: 40,
   },
 });
 

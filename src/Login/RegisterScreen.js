@@ -1,54 +1,52 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
 
 const RegisterScreen = ({ navigation }) => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleRegister = () => {
-    // Logika untuk melakukan registrasi
-    // Setelah berhasil, navigasi ke halaman LoginScreen
-    navigation.navigate("Login");
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
+      <Text style={styles.title}>Create account</Text>
+      <Text style={styles.subtitle}>
+        Create an account so you can explore all the existing jobs
+      </Text>
+      <TextInput style={styles.input} placeholder="Name" />
+      <TextInput style={styles.input} placeholder="Email" />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        secureTextEntry={true}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Konfirmasi Password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+      <TouchableOpacity style={styles.loginButton}>
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Kembali ke Login</Text>
-      </TouchableOpacity>
+      {/* Teks Already have an account, onPress untuk navigasi ke Login Screen */}
+      <Text
+        style={styles.createAccount}
+        onPress={() => navigation.navigate("Login")}
+      >
+        Already have an account
+      </Text>
+      <Text style={styles.continueText}>Or continue with</Text>
+      <View style={styles.iconContainer}>
+        <Image
+          source={{ uri: "https://placeholder-google-icon" }}
+          style={styles.icon}
+        />
+        <Image
+          source={{ uri: "https://placeholder-apple-icon" }}
+          style={styles.icon}
+        />
+        <Image
+          source={{ uri: "https://placeholder-facebook-icon" }}
+          style={styles.icon}
+        />
+      </View>
     </View>
   );
 };
@@ -56,37 +54,62 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
     textAlign: "center",
+    color: "#1e90ff",
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    borderColor: "gray",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    width: "100%",
+    padding: 12,
+    marginVertical: 10,
   },
-  button: {
-    backgroundColor: "blue",
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+  loginButton: {
+    backgroundColor: "#1e90ff",
+    padding: 15,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10, // Tambahkan jarak untuk "Already have an account"
   },
   buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
-  backButtonText: {
-    textAlign: "center",
-    color: "blue",
-    textDecorationLine: "underline",
+  createAccount: {
+    marginTop: 10,
+    color: "#666",
+    fontSize: 14,
+    textDecorationLine: "underline", // Menambahkan garis bawah untuk membedakan
+  },
+  continueText: {
+    marginVertical: 10,
+    color: "#666",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "50%",
+  },
+  icon: {
+    width: 40,
+    height: 40,
   },
 });
 

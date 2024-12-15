@@ -14,7 +14,11 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Opening">
-        <Stack.Screen name="Opening" component={Opening} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="Opening"
+          component={Opening}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
@@ -26,8 +30,3 @@ const App = () => {
 };
 
 export default App;
-
-//fauzan difa safli
-//ferina nur annisa
-//naufal rizh aubi
-//12345
