@@ -172,7 +172,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/cinemaapp', {
+mongoose.connect('mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });

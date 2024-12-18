@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-const API_BASE_URL = 'http://10.0.2.2:5000/api';
+const API_BASE_URL = 'mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");

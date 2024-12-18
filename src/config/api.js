@@ -1,5 +1,5 @@
 // src/config/api.js
-export const API_BASE_URL = 'http://10.0.2.2:5000/api';  // Untuk Android Emulator
+export const API_BASE_URL = 'mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0';  // Untuk Android Emulator
 // Atau gunakan IP lokal Anda jika menggunakan perangkat fisik
 // export const API_BASE_URL = 'http://192.168.1.X:5000/api';
 
