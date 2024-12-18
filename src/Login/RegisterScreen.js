@@ -32,7 +32,6 @@ const RegisterScreen = ({ navigation }) => {
       >
         Already have an account
       </Text>
-      <Text style={styles.continueText}>Or continue with</Text>
       <View style={styles.iconContainer}>
         <Image
           source={{ uri: "https://placeholder-google-icon" }}
