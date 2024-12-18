@@ -1,51 +1,116 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 
+const API_BASE_URL = 'http://10.0.2.2:5000/api';
+
 const RegisterScreen = ({ navigation }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: name,
+          email,
+          password,
+          nama: name,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          "Success",
+          "Registration successful!",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("Login")
+            }
+          ]
+        );
+      } else {
+        Alert.alert("Registration Failed", data.message || "Please try again");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Connection error. Please check your internet connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create account</Text>
-      <Text style={styles.subtitle}>
-        Create an account so you can explore all the existing jobs
-      </Text>
-      <TextInput style={styles.input} placeholder="Name" />
-      <TextInput style={styles.input} placeholder="Email" />
+      <Text style={styles.title}>Create Account</Text>
+      <Text style={styles.subtitle}>Please fill the details to create account</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        value={name}
+        onChangeText={setName}
+        autoCapitalize="words"
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry={true}
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.loginButton}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-      {/* Teks Already have an account, onPress untuk navigasi ke Login Screen */}
-      <Text
-        style={styles.createAccount}
-        onPress={() => navigation.navigate("Login")}
+
+      <TouchableOpacity 
+        style={[styles.registerButton, loading && styles.registerButtonDisabled]}
+        onPress={handleRegister}
+        disabled={loading}
       >
-        Already have an account
-      </Text>
-      <View style={styles.iconContainer}>
-        <Image
-          source={{ uri: "https://placeholder-google-icon" }}
-          style={styles.icon}
-        />
-        <Image
-          source={{ uri: "https://placeholder-apple-icon" }}
-          style={styles.icon}
-        />
-        <Image
-          source={{ uri: "https://placeholder-facebook-icon" }}
-          style={styles.icon}
-        />
-      </View>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Register</Text>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        onPress={() => navigation.navigate("Login")}
+        style={styles.loginLink}
+      >
+        <Text style={styles.loginText}>
+          Already have an account? <Text style={styles.loginTextBold}>Login</Text>
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -53,62 +118,57 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#1e90ff",
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1e90ff',
+    textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 20,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    width: "100%",
-    padding: 12,
-    marginVertical: 10,
+    padding: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
   },
-  loginButton: {
-    backgroundColor: "#1e90ff",
+  registerButton: {
+    backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 10, // Tambahkan jarak untuk "Already have an account"
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  registerButtonDisabled: {
+    backgroundColor: '#ccc',
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  createAccount: {
-    marginTop: 10,
-    color: "#666",
+  loginLink: {
+    alignItems: 'center',
+  },
+  loginText: {
+    color: '#666',
     fontSize: 14,
-    textDecorationLine: "underline", // Menambahkan garis bawah untuk membedakan
   },
-  continueText: {
-    marginVertical: 10,
-    color: "#666",
-  },
-  iconContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "50%",
-  },
-  icon: {
-    width: 40,
-    height: 40,
+  loginTextBold: {
+    color: '#1e90ff',
+    fontWeight: 'bold',
   },
 });
 

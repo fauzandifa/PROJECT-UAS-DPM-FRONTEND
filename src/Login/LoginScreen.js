@@ -4,70 +4,96 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
+
+const API_BASE_URL = 'http://10.0.2.2:5000/api';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Fungsi untuk menangani login
-  const handleLogin = () => {
-    // Mengecek apakah email dan password sesuai
-    if (email === "123" && password === "123") {
-      navigation.navigate("Home"); // Arahkan ke HomeScreen jika cocok
-    } else {
-      alert("Invalid email or password");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Simpan data di global state jika diperlukan
+        navigation.replace("Home");
+      } else {
+        Alert.alert("Login Failed", data.message || "Please check your credentials");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Connection error. Please check your internet connection.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login here</Text>
+      <Text style={styles.title}>TiketKu</Text>
       <Text style={styles.subtitle}>Welcome back you've been missed!</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry={true}
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
+
       <Text
         style={styles.forgotPassword}
         onPress={() => navigation.navigate("ForgotPassword")}
       >
         Forgot your password?
       </Text>
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <Text
-        style={styles.createAccount}
-        onPress={() => navigation.navigate("Register")}
+
+      <TouchableOpacity 
+        style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+        onPress={handleLogin}
+        disabled={loading}
       >
-        Create new account
-      </Text>
-      <View style={styles.iconContainer}>
-        <Image
-          source={{ uri: "https://placeholder-google-icon" }}
-          style={styles.icon}
-        />
-        <Image
-          source={{ uri: "https://placeholder-apple-icon" }}
-          style={styles.icon}
-        />
-        <Image
-          source={{ uri: "https://placeholder-facebook-icon" }}
-          style={styles.icon}
-        />
-      </View>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        onPress={() => navigation.navigate("Register")}
+        style={styles.registerButton}
+      >
+        <Text style={styles.registerText}>Create new account</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -75,66 +101,58 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#1e90ff",
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1e90ff',
+    textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 20,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    width: "100%",
-    padding: 12,
-    marginVertical: 10,
-  },
-  loginButton: {
-    backgroundColor: "#1e90ff",
     padding: 15,
-    borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
   },
   forgotPassword: {
-    alignSelf: "flex-end",
-    color: "#1e90ff",
+    color: '#1e90ff',
+    textAlign: 'right',
     marginBottom: 20,
   },
-  createAccount: {
-    marginTop: 10,
-    color: "#666",
+  loginButton: {
+    backgroundColor: '#1e90ff',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  loginButtonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  registerButton: {
+    alignItems: 'center',
+  },
+  registerText: {
+    color: '#666',
     fontSize: 14,
-  },
-  continueText: {
-    marginVertical: 10,
-    color: "#666",
-  },
-  iconContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "50%",
-  },
-  icon: {
-    width: 40,
-    height: 40,
   },
 });
 
