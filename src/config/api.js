@@ -1,26 +1,35 @@
-// src/config/api.js
-export const API_BASE_URL = 'mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0';  // Untuk Android Emulator
-// Atau gunakan IP lokal Anda jika menggunakan perangkat fisik
-// export const API_BASE_URL = 'http://192.168.1.X:5000/api';
+import axios from 'axios';
+import { API_URL } from './config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const apiCall = async (endpoint, options = {}) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Something went wrong');
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add token to requests
+api.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem('userToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    return data;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export const loginUser = async (email, password) => {
+  try {
+    const response = await api.post('/login', { email, password });
+    return response.data;
   } catch (error) {
-    throw error;
+    throw error.response?.data || { message: 'Network error' };
   }
 };
+
+export default api;

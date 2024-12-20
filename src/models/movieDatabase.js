@@ -51,7 +51,7 @@ module.exports = mongoose.model('Movie', MovieSchema);
 const express = require('express');
 const router = express.Router();
 const Movie = require('../models/Movie');
-const { verifyToken, isAdmin } = require('../middleware/auth');
+const { verifyToken, isAdmin } = require('../api/auth');
 
 // Get all movies
 router.get('/movies', async (req, res) => {

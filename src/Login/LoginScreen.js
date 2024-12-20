@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-const API_BASE_URL = 'mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0';
+const API_BASE_URL = 'http://10.0.2.2:5000/api';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -27,20 +27,20 @@ const LoginScreen = ({ navigation }) => {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Simpan data di global state jika diperlukan
         navigation.replace("Home");
       } else {
         Alert.alert("Login Failed", data.message || "Please check your credentials");
       }
     } catch (error) {
+      console.error('Login error:', error);
       Alert.alert("Error", "Connection error. Please check your internet connection.");
     } finally {
       setLoading(false);
@@ -69,12 +69,9 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
       />
 
-      <Text
-        style={styles.forgotPassword}
-        onPress={() => navigation.navigate("ForgotPassword")}
-      >
-        Forgot your password?
-      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+        <Text style={styles.forgotPassword}>Forgot your password?</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.loginButton, loading && styles.loginButtonDisabled]}
@@ -103,20 +100,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1e90ff',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 10
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 30
   },
   input: {
     backgroundColor: '#f5f5f5',
@@ -125,35 +122,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 15,
+    marginBottom: 15
   },
   forgotPassword: {
     color: '#1e90ff',
     textAlign: 'right',
-    marginBottom: 20,
+    marginBottom: 20
   },
   loginButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 15
   },
   loginButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#ccc'
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   registerButton: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
   registerText: {
     color: '#666',
-    fontSize: 14,
-  },
+    fontSize: 14
+  }
 });
 
 export default LoginScreen;

@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-const API_BASE_URL = 'mongodb+srv://enryz:123@cluster0.4jwmp.mongodb.net/enryz?retryWrites=true&w=majority&appName=Cluster0';
+// Gunakan IP yang benar untuk Android Emulator
+const API_BASE_URL = 'http://10.0.2.2:5000/api';
 
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -25,20 +26,23 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       setLoading(true);
+      console.log('Attempting to register...');
+      
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           username: name,
           email,
           password,
-          nama: name,
-        }),
+          nama: name
+        })
       });
 
       const data = await response.json();
+      console.log('Registration response:', data);
 
       if (response.ok) {
         Alert.alert(
@@ -55,6 +59,7 @@ const RegisterScreen = ({ navigation }) => {
         Alert.alert("Registration Failed", data.message || "Please try again");
       }
     } catch (error) {
+      console.error('Registration error:', error);
       Alert.alert("Error", "Connection error. Please check your internet connection.");
     } finally {
       setLoading(false);
@@ -115,25 +120,26 @@ const RegisterScreen = ({ navigation }) => {
   );
 };
 
+// Styles harus didefinisikan dalam komponen yang sama
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1e90ff',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 10
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 30
   },
   input: {
     backgroundColor: '#f5f5f5',
@@ -142,34 +148,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 15,
+    marginBottom: 15
   },
   registerButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 15
   },
   registerButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#ccc'
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   loginLink: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
   loginText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: 14
   },
   loginTextBold: {
     color: '#1e90ff',
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'
+  }
 });
 
 export default RegisterScreen;
