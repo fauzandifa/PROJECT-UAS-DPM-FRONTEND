@@ -15,12 +15,9 @@ const ProfilePage = () => (
 
     <View style={styles.menuSection}>
       <MenuItem icon="person-outline" title="Personal Info" />
-      <MenuItem icon="map-outline" title="Addresses" />
-      <MenuItem icon="heart-outline" title="bookmark" />
       <MenuItem icon="notifications-outline" title="Notifications" />
-      <MenuItem icon="card-outline" title="Payment Method" />
-      <MenuItem icon="help-circle-outline" title="FAQs" />
-      <MenuItem icon="star-outline" title="User Reviews" />
+      <MenuItem icon="card-outline" title="Payment History" />
+      <MenuItem icon="costumer-service" title="Costumer Service" />
       <MenuItem icon="settings-outline" title="Settings" />
     </View>
 

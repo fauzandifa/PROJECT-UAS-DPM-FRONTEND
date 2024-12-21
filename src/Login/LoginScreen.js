@@ -131,79 +131,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
-    justifyContent: ' center'
+    backgroundColor: "#fff",
+    justifyContent: "center",
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1e90ff',
-    textAlign: 'center',
-    marginBottom: 10
+    fontWeight: "bold",
+    color: "#1e90ff",
+    textAlign: "center",
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 30
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 30,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 10,
     padding: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 15
+    borderColor: "#ddd",
+    marginBottom: 15,
   },
   forgotPassword: {
-    color: '#1e90ff',
-    textAlign: 'right',
-    marginBottom: 20
+    color: "#1e90ff",
+    textAlign: "right",
+    marginBottom: 20,
   },
   loginButton: {
-    backgroundColor: '#1e90ff',
+    backgroundColor: "#1e90ff",
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 15
+    alignItems: "center",
+    marginBottom: 15,
   },
   loginButtonDisabled: {
-    backgroundColor: '#ccc'
+    backgroundColor: "#ccc",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: "bold",
   },
   registerButton: {
-    alignItems: 'center'
+    alignItems: "center",
   },
   registerText: {
-    color: '#666',
-    fontSize: 14
+    color: "#666",
+    fontSize: 14,
   },
-  modeSelection: {
-    marginTop: 20,
-    alignItems: 'center'
-  },
-  modeTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10
-  },
-  modeButton: {
-    backgroundColor: '#1e90ff',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    alignItems: 'center',
-    width: '80%'
-  },
-  modeButtonText: {
-    color: '#fff',
-    fontSize: 16
-  }
 });
 
 export default LoginScreen;

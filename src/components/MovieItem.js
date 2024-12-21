@@ -13,7 +13,7 @@ const MovieItem = ({ item }) => (
       style={styles.messageButton}
       onPress={() => Alert.alert("Message", `Send message about ${item.title}`)}
     >
-      <Text style={styles.messageButtonText}>Message</Text>
+      <Text style={styles.messageButtonText}>Pesan Tiket</Text>
     </TouchableOpacity>
   </View>
 );
