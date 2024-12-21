@@ -15,13 +15,14 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // State untuk mengecek admin
 
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-
+  
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/login`, {
@@ -31,19 +32,32 @@ const LoginScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ email, password })
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        navigation.replace("Home");
+        // Cek apakah pengguna adalah admin
+        if (email === "admin@tiketku.com" && password === "kel7dpm") {
+          setIsAdmin(true); // Set admin mode
+        } else {
+          navigation.navigate("Home"); // Navigasi ke Home jika bukan admin
+        }
       } else {
-        Alert.alert("Login Failed", data.message || "Please check your credentials");
+        Alert.alert("Error", data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert("Error", "Connection error. Please check your internet connection.");
+      Alert.alert("Error", "An error occurred. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleModeSelection = (mode) => {
+    if (mode === "frontend") {
+      navigation.navigate("Home"); // Navigasi ke HomeScreen
+    } else {
+      // Navigasi ke Backend Screen (ganti dengan nama layar backend yang sesuai)
+      navigation.navigate("BackendScreen");
     }
   };
 
@@ -91,6 +105,24 @@ const LoginScreen = ({ navigation }) => {
       >
         <Text style={styles.registerText}>Create new account</Text>
       </TouchableOpacity>
+
+      {isAdmin && (
+        <View style={styles.modeSelection}>
+          <Text style={styles.modeTitle}>Select Mode:</Text>
+          <TouchableOpacity 
+            style={styles.modeButton}
+            onPress={() => handleModeSelection("frontend")}
+          >
+            <Text style={styles.modeButtonText}>Frontend</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.modeButton}
+            onPress={() => handleModeSelection("backend")}
+          >
+            <Text style={styles.modeButtonText}>Backend</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -100,7 +132,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center'
+    justifyContent: ' center'
   },
   title: {
     fontSize: 32,
@@ -150,6 +182,27 @@ const styles = StyleSheet.create({
   registerText: {
     color: '#666',
     fontSize: 14
+  },
+  modeSelection: {
+    marginTop: 20,
+    alignItems: 'center'
+  },
+  modeTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10
+  },
+  modeButton: {
+    backgroundColor: '#1e90ff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    alignItems: 'center',
+    width: '80%'
+  },
+  modeButtonText: {
+    color: '#fff',
+    fontSize: 16
   }
 });
 
