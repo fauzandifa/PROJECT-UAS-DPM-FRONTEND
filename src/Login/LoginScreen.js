@@ -8,56 +8,75 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://10.0.2.2:5000/api';
+const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // State untuk mengecek admin
 
   const handleLogin = async () => {
+    // Validasi input
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-  
+
     try {
       setLoading(true);
+
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
-  
+
       const data = await response.json();
-  
-      if (response.ok) {
-        // Cek apakah pengguna adalah admin
+
+      if (data.success) {
+        // Simpan token dan data user
+        await AsyncStorage.setItem('userToken', data.data.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
+
+        // Cek apakah admin
         if (email === "admin@tiketku.com" && password === "kel7dpm") {
-          setIsAdmin(true); // Set admin mode
+          Alert.alert(
+            "Admin Login",
+            "Choose Mode",
+            [
+              {
+                text: "Frontend",
+                onPress: () => navigation.replace("Home")
+              },
+              {
+                text: "Backend",
+                onPress: () => navigation.replace("BackendScreen")
+              }
+            ],
+            { cancelable: false }
+          );
         } else {
-          navigation.navigate("Home"); // Navigasi ke Home jika bukan admin
+          // User biasa langsung ke Home
+          navigation.replace("Home");
         }
       } else {
-        Alert.alert("Error", data.message || "Login failed");
+        Alert.alert("Login Failed", data.message || "Invalid credentials");
       }
     } catch (error) {
-      Alert.alert("Error", "An error occurred. Please try again.");
+      console.error('Login error:', error);
+      Alert.alert(
+        "Error",
+        "Unable to connect to server. Please check your internet connection."
+      );
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleModeSelection = (mode) => {
-    if (mode === "frontend") {
-      navigation.navigate("Home"); // Navigasi ke HomeScreen
-    } else {
-      // Navigasi ke Backend Screen (ganti dengan nama layar backend yang sesuai)
-      navigation.navigate("BackendScreen");
     }
   };
 
@@ -73,17 +92,22 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        placeholderTextColor="#999"
       />
 
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        placeholderTextColor="#999"
       />
 
-      <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+      <TouchableOpacity 
+        onPress={() => navigation.navigate("ForgotPassword")}
+        style={styles.forgotPasswordContainer}
+      >
         <Text style={styles.forgotPassword}>Forgot your password?</Text>
       </TouchableOpacity>
 
@@ -101,28 +125,12 @@ const LoginScreen = ({ navigation }) => {
 
       <TouchableOpacity 
         onPress={() => navigation.navigate("Register")}
-        style={styles.registerButton}
+        style={styles.registerContainer}
       >
-        <Text style={styles.registerText}>Create new account</Text>
+        <Text style={styles.registerText}>
+          Don't have an account? <Text style={styles.registerLink}>Register</Text>
+        </Text>
       </TouchableOpacity>
-
-      {isAdmin && (
-        <View style={styles.modeSelection}>
-          <Text style={styles.modeTitle}>Select Mode:</Text>
-          <TouchableOpacity 
-            style={styles.modeButton}
-            onPress={() => handleModeSelection("frontend")}
-          >
-            <Text style={styles.modeButtonText}>Frontend</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.modeButton}
-            onPress={() => handleModeSelection("backend")}
-          >
-            <Text style={styles.modeButtonText}>Backend</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 };
@@ -130,80 +138,66 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
-    justifyContent: ' center'
+    padding: 20,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1e90ff',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 30
+    marginBottom: 30,
   },
   input: {
     backgroundColor: '#f5f5f5',
-    borderRadius: 10,
     padding: 15,
-    fontSize: 16,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 15
+    fontSize: 16,
+    marginBottom: 15,
+  },
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginBottom: 20,
   },
   forgotPassword: {
     color: '#1e90ff',
-    textAlign: 'right',
-    marginBottom: 20
+    fontSize: 14,
   },
   loginButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15
+    marginBottom: 20,
   },
   loginButtonDisabled: {
-    backgroundColor: '#ccc'
+    backgroundColor: '#cccccc',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
-  registerButton: {
-    alignItems: 'center'
+  registerContainer: {
+    alignItems: 'center',
   },
   registerText: {
     color: '#666',
-    fontSize: 14
+    fontSize: 14,
   },
-  modeSelection: {
-    marginTop: 20,
-    alignItems: 'center'
-  },
-  modeTitle: {
-    fontSize: 18,
+  registerLink: {
+    color: '#1e90ff',
     fontWeight: 'bold',
-    marginBottom: 10
   },
-  modeButton: {
-    backgroundColor: '#1e90ff',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    alignItems: 'center',
-    width: '80%'
-  },
-  modeButtonText: {
-    color: '#fff',
-    fontSize: 16
-  }
 });
 
 export default LoginScreen;

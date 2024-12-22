@@ -7,51 +7,77 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Gunakan IP yang benar untuk Android Emulator
-const API_BASE_URL = 'http://10.0.2.2:5000/api';
+const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
 
 const RegisterScreen = ({ navigation }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    nama: "",
+  });
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
-    if (!name || !email || !password) {
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validateForm = () => {
+    const { username, email, password, nama } = formData;
+    
+    if (!username || !email || !password || !nama) {
       Alert.alert("Error", "Please fill in all fields");
-      return;
+      return false;
     }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters long");
+      return false;
+    }
+
+    if (!email.includes('@')) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-      console.log('Attempting to register...');
-      
+
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: name,
-          email,
-          password,
-          nama: name
-        })
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-      console.log('Registration response:', data);
 
-      if (response.ok) {
+      if (data.success) {
+        // Save token and user data
+        await AsyncStorage.setItem('userToken', data.data.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
+
         Alert.alert(
           "Success",
           "Registration successful!",
           [
             {
               text: "OK",
-              onPress: () => navigation.navigate("Login")
+              onPress: () => navigation.replace("Login")
             }
           ]
         );
@@ -60,40 +86,55 @@ const RegisterScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      Alert.alert("Error", "Connection error. Please check your internet connection.");
+      Alert.alert(
+        "Error",
+        "Unable to connect to server. Please check your internet connection."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Please fill the details to create account</Text>
+      <Text style={styles.subtitle}>Please fill in the details to create an account</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={formData.username}
+        onChangeText={(value) => handleInputChange('username', value)}
+        autoCapitalize="none"
+        placeholderTextColor="#999"
+      />
 
       <TextInput
         style={styles.input}
         placeholder="Full Name"
-        value={name}
-        onChangeText={setName}
+        value={formData.nama}
+        onChangeText={(value) => handleInputChange('nama', value)}
         autoCapitalize="words"
+        placeholderTextColor="#999"
       />
 
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={formData.email}
+        onChangeText={(value) => handleInputChange('email', value)}
         keyboardType="email-address"
         autoCapitalize="none"
+        placeholderTextColor="#999"
       />
 
       <TextInput
         style={styles.input}
         placeholder="Password"
+        value={formData.password}
+        onChangeText={(value) => handleInputChange('password', value)}
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        placeholderTextColor="#999"
       />
 
       <TouchableOpacity 
@@ -110,72 +151,71 @@ const RegisterScreen = ({ navigation }) => {
 
       <TouchableOpacity 
         onPress={() => navigation.navigate("Login")}
-        style={styles.loginLink}
+        style={styles.loginContainer}
       >
         <Text style={styles.loginText}>
-          Already have an account? <Text style={styles.loginTextBold}>Login</Text>
+          Already have an account? <Text style={styles.loginLink}>Login</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
-// Styles harus didefinisikan dalam komponen yang sama
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
+    flexGrow: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center'
+    padding: 20,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1e90ff',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 30
+    marginBottom: 30,
   },
   input: {
     backgroundColor: '#f5f5f5',
-    borderRadius: 10,
     padding: 15,
-    fontSize: 16,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 15
+    fontSize: 16,
+    marginBottom: 15,
   },
   registerButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15
+    marginBottom: 20,
   },
   registerButtonDisabled: {
-    backgroundColor: '#ccc'
+    backgroundColor: '#cccccc',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
-  loginLink: {
-    alignItems: 'center'
+  loginContainer: {
+    alignItems: 'center',
   },
   loginText: {
     color: '#666',
-    fontSize: 14
+    fontSize: 14,
   },
-  loginTextBold: {
+  loginLink: {
     color: '#1e90ff',
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+  },
 });
 
 export default RegisterScreen;
