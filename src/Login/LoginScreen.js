@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Animated,
+  Modal,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,10 +20,11 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false); // State baru untuk password
+  const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailLabelPosition] = useState(new Animated.Value(0));
-  const [passwordLabelPosition] = useState(new Animated.Value(0)); // Animasi untuk password
+  const [passwordLabelPosition] = useState(new Animated.Value(0));
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,6 +35,27 @@ const LoginScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
+      // Check for admin credentials first
+      if (email === "admin@tiketku.com" && password === "dpmkel7") {
+        // Create mock admin data
+        const adminData = {
+          id: "admin",
+          email: "admin@tiketku.com",
+          username: "admin",
+          nama: "Administrator"
+        };
+
+        // Store admin data in AsyncStorage
+        await AsyncStorage.setItem('userToken', 'admin-token');
+        await AsyncStorage.setItem('userData', JSON.stringify(adminData));
+
+        // Show modal for mode selection
+        setModalVisible(true);
+        setLoading(false);
+        return;
+      }
+
+      // Regular user login process
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
@@ -49,7 +72,6 @@ const LoginScreen = ({ navigation }) => {
       if (data.success) {
         await AsyncStorage.setItem('userToken', data.data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
-
         navigation.replace("Home");
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
@@ -68,7 +90,7 @@ const LoginScreen = ({ navigation }) => {
   const handleEmailFocus = () => {
     setEmailFocused(true);
     Animated.timing(emailLabelPosition, {
-      toValue: -7,  // Position above the input field
+      toValue: -7,
       duration: 200,
       useNativeDriver: true,
     }).start();
@@ -78,7 +100,7 @@ const LoginScreen = ({ navigation }) => {
     if (email === "") {
       setEmailFocused(false);
       Animated.timing(emailLabelPosition, {
-        toValue: 0,  // Original position
+        toValue: 0,
         duration: 200,
         useNativeDriver: true,
       }).start();
@@ -88,7 +110,7 @@ const LoginScreen = ({ navigation }) => {
   const handlePasswordFocus = () => {
     setPasswordFocused(true);
     Animated.timing(passwordLabelPosition, {
-      toValue: -7,  // Position above the input field
+      toValue: -7,
       duration: 200,
       useNativeDriver: true,
     }).start();
@@ -98,7 +120,7 @@ const LoginScreen = ({ navigation }) => {
     if (password === "") {
       setPasswordFocused(false);
       Animated.timing(passwordLabelPosition, {
-        toValue: 0,  // Original position
+        toValue: 0,
         duration: 200,
         useNativeDriver: true,
       }).start();
@@ -107,6 +129,39 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>SELECT MODE</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#007AFF' }]}
+                onPress={() => {
+                  setModalVisible(false);
+                  navigation.replace("BackendScreen");
+                }}
+              >
+                <Text style={styles.modalButtonText}>BACKEND</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#007AFF' }]}
+                onPress={() => {
+                  setModalVisible(false);
+                  navigation.replace("Home");
+                }}
+              >
+                <Text style={styles.modalButtonText}>FRONTend</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Text style={styles.title}>TiketKu</Text>
       <Text style={styles.subtitle}>Welcome back you've been missed!</Text>
 
@@ -128,12 +183,11 @@ const LoginScreen = ({ navigation }) => {
           autoCapitalize="none"
           onFocus={handleEmailFocus}
           onBlur={handleEmailBlur}
-          placeholder="Email" // Placeholder tetap ada
+          placeholder="Email"
           placeholderTextColor="#999"
         />
       </View>
 
-      {/* Kolom Password */}
       <View style={styles.passwordContainer}>
         <Animated.Text
           style={[
@@ -204,6 +258,42 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 30,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  modalButton: {
+    borderRadius: 10,
+    padding: 15,
+    width: '45%',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'lowercase',
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -219,7 +309,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 15,
-    marginTop: 40,  // Menurunkan kolom email lebih jauh ke bawah
+    marginTop: 40,
     position: 'relative',
   },
   label: {

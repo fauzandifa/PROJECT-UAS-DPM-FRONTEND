@@ -7,12 +7,12 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Animated,
   ScrollView,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons'; // Pastikan Anda telah menginstal @expo/vector-icons
 
-const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
+const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; 
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -22,13 +22,106 @@ const RegisterScreen = ({ navigation }) => {
     nama: "",
   });
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State untuk visibilitas password
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [usernameFocused, setUsernameFocused] = useState(false);
+  const [fullnameFocused, setFullnameFocused] = useState(false);
+  const [emailLabelPosition] = useState(new Animated.Value(0));
+  const [passwordLabelPosition] = useState(new Animated.Value(0));
+  const [usernameLabelPosition] = useState(new Animated.Value(0));
+  const [fullnameLabelPosition] = useState(new Animated.Value(0));
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleFocus = (field) => {
+    switch(field) {
+      case 'username':
+        setUsernameFocused(true);
+        Animated.timing(usernameLabelPosition, {
+          toValue: -7,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+        break;
+      case 'fullname':
+        setFullnameFocused(true);
+        Animated.timing(fullnameLabelPosition, {
+          toValue: -7,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+        break;
+      case 'email':
+        setEmailFocused(true);
+        Animated.timing(emailLabelPosition, {
+          toValue: -7,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+        break;
+      case 'password':
+        setPasswordFocused(true);
+        Animated.timing(passwordLabelPosition, {
+          toValue: -7,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleBlur = (field) => {
+    switch(field) {
+      case 'username':
+        if (formData.username === "") {
+          setUsernameFocused(false);
+          Animated.timing(usernameLabelPosition, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+        break;
+      case 'fullname':
+        if (formData.nama === "") {
+          setFullnameFocused(false);
+          Animated.timing(fullnameLabelPosition, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+        break;
+      case 'email':
+        if (formData.email === "") {
+          setEmailFocused(false);
+          Animated.timing(emailLabelPosition, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+        break;
+      case 'password':
+        if (formData.password === "") {
+          setPasswordFocused(false);
+          Animated.timing(passwordLabelPosition, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   const validateForm = () => {
@@ -69,7 +162,6 @@ const RegisterScreen = ({ navigation }) => {
       const data = await response.json();
 
       if (data.success) {
-        // Save token and user data
         await AsyncStorage.setItem('userToken', data.data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
 
@@ -102,53 +194,77 @@ const RegisterScreen = ({ navigation }) => {
       <Text style={styles.title}>Create Account</Text>
       <Text style={styles.subtitle}>Please fill in the details to create an account</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={formData.username}
-        onChangeText={(value) => handleInputChange('username', value)}
-        autoCapitalize="none"
-        placeholderTextColor="#999"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        value={formData.nama}
-        onChangeText={(value) => handleInputChange('nama', value)}
-        autoCapitalize="words"
-        placeholderTextColor="#999"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={formData.email}
-        onChangeText={(value) => handleInputChange('email', value)}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        placeholderTextColor="#999"
-      />
-
-      <View style={styles.passwordContainer}>
+      <View style={styles.inputContainer}>
+        <Animated.Text
+          style={[styles.label, { transform: [{ translateY: usernameLabelPosition }] }, usernameFocused && styles.focusedLabel]}
+        >
+          Username
+        </Animated.Text>
         <TextInput
-          style={[styles.input, styles.passwordInput]}
+          style={styles.input}
+          placeholder="Username"
+          value={formData.username}
+          onChangeText={(value) => handleInputChange('username', value)}
+          autoCapitalize="none"
+          placeholderTextColor="#999"
+          onFocus={() => handleFocus('username')}
+          onBlur={() => handleBlur('username')}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Animated.Text
+          style={[styles.label, { transform: [{ translateY: fullnameLabelPosition }] }, fullnameFocused && styles.focusedLabel]}
+        >
+          Full Name
+        </Animated.Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          value={formData.nama}
+          onChangeText={(value) => handleInputChange('nama', value)}
+          autoCapitalize="words"
+          placeholderTextColor="#999"
+          onFocus={() => handleFocus('fullname')}
+          onBlur={() => handleBlur('fullname')}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Animated.Text
+          style={[styles.label, { transform: [{ translateY: emailLabelPosition }] }, emailFocused && styles.focusedLabel]}
+        >
+          Email
+        </Animated.Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={formData.email}
+          onChangeText={(value) => handleInputChange('email', value)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          placeholderTextColor="#999"
+          onFocus={() => handleFocus('email')}
+          onBlur={() => handleBlur('email')}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Animated.Text
+          style={[styles.label, { transform: [{ translateY: passwordLabelPosition }] }, passwordFocused && styles.focusedLabel]}
+        >
+          Password
+        </Animated.Text>
+        <TextInput
+          style={styles.input}
           placeholder="Password"
           value={formData.password}
           onChangeText={(value) => handleInputChange('password', value)}
-          secureTextEntry={!showPassword}
+          secureTextEntry={true}
           placeholderTextColor="#999"
+          onFocus={() => handleFocus('password')}
+          onBlur={() => handleBlur('password')}
         />
-        <TouchableOpacity
-          style={styles.iconContainer}
-          onPress={() => setShowPassword(!showPassword)}
-        >
-          <Ionicons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
-            size={24}
-            color="#999"
-          />
-        </TouchableOpacity>
       </View>
 
       <TouchableOpacity 
@@ -195,6 +311,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
   },
+  inputContainer: {
+    marginBottom: 20, // Increased from 7 to 20
+    marginTop: 10,    // Increased from 7 to 10
+    position: 'relative',
+  },
+  label: {
+    position: 'absolute',
+    left: 20,
+    top: 18,
+    color: '#999',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  focusedLabel: {
+    color: '#000',
+    top: -10,
+    fontSize: 12,
+  },
   input: {
     backgroundColor: '#f5f5f5',
     padding: 15,
@@ -202,26 +336,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     fontSize: 16,
-    marginBottom: 15,
-  },
-  passwordContainer: {
-    position: 'relative',
-    marginBottom: 15,
-  },
-  passwordInput: {
-    paddingRight: 45,
-  },
-  iconContainer: {
-    position: 'absolute',
-    right: 15,
-    top: 15,
   },
   registerButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 20,    // Added marginTop
+    marginBottom: 10,
   },
   registerButtonDisabled: {
     backgroundColor: '#cccccc',
