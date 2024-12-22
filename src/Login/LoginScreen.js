@@ -7,17 +7,22 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons'; // Pastikan Anda telah menginstal @expo/vector-icons
+import { Ionicons } from '@expo/vector-icons';
 
-const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
+const API_BASE_URL = 'http://192.168.10.15:5000/api/auth';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false); // State baru untuk password
+  const [emailLabelPosition] = useState(new Animated.Value(0));
+  const [passwordLabelPosition] = useState(new Animated.Value(0)); // Animasi untuk password
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -45,25 +50,7 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem('userToken', data.data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
 
-        if (email === "admin@tiketku.com" && password === "kel7dpm") {
-          Alert.alert(
-            "Admin Login",
-            "Choose Mode",
-            [
-              {
-                text: "Frontend",
-                onPress: () => navigation.replace("Home")
-              },
-              {
-                text: "Backend",
-                onPress: () => navigation.replace("BackendScreen")
-              }
-            ],
-            { cancelable: false }
-          );
-        } else {
-          navigation.replace("Home");
-        }
+        navigation.replace("Home");
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
       }
@@ -78,22 +65,85 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const handleEmailFocus = () => {
+    setEmailFocused(true);
+    Animated.timing(emailLabelPosition, {
+      toValue: -7,  // Position above the input field
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleEmailBlur = () => {
+    if (email === "") {
+      setEmailFocused(false);
+      Animated.timing(emailLabelPosition, {
+        toValue: 0,  // Original position
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const handlePasswordFocus = () => {
+    setPasswordFocused(true);
+    Animated.timing(passwordLabelPosition, {
+      toValue: -7,  // Position above the input field
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePasswordBlur = () => {
+    if (password === "") {
+      setPasswordFocused(false);
+      Animated.timing(passwordLabelPosition, {
+        toValue: 0,  // Original position
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TiketKu</Text>
       <Text style={styles.subtitle}>Welcome back you've been missed!</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        placeholderTextColor="#999"
-      />
+      <View style={styles.inputContainer}>
+        <Animated.Text
+          style={[
+            styles.label,
+            { transform: [{ translateY: emailLabelPosition }] },
+            emailFocused && styles.focusedLabel,
+          ]}
+        >
+          Email
+        </Animated.Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          onFocus={handleEmailFocus}
+          onBlur={handleEmailBlur}
+          placeholder="Email" // Placeholder tetap ada
+          placeholderTextColor="#999"
+        />
+      </View>
 
+      {/* Kolom Password */}
       <View style={styles.passwordContainer}>
+        <Animated.Text
+          style={[
+            styles.label,
+            { transform: [{ translateY: passwordLabelPosition }] },
+            passwordFocused && styles.focusedLabel,
+          ]}
+        >
+          Password
+        </Animated.Text>
         <TextInput
           style={[styles.input, styles.passwordInput]}
           placeholder="Password"
@@ -101,6 +151,8 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           placeholderTextColor="#999"
+          onFocus={handlePasswordFocus}
+          onBlur={handlePasswordBlur}
         />
         <TouchableOpacity
           style={styles.iconContainer}
@@ -114,14 +166,14 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate("ForgotPassword")}
         style={styles.forgotPasswordContainer}
       >
         <Text style={styles.forgotPassword}>Forgot your password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.loginButton, loading && styles.loginButtonDisabled]}
         onPress={handleLogin}
         disabled={loading}
@@ -133,7 +185,7 @@ const LoginScreen = ({ navigation }) => {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate("Register")}
         style={styles.registerContainer}
       >
@@ -165,6 +217,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
   },
+  inputContainer: {
+    marginBottom: 15,
+    marginTop: 40,  // Menurunkan kolom email lebih jauh ke bawah
+    position: 'relative',
+  },
+  label: {
+    position: 'absolute',
+    left: 20,
+    top: 18,
+    color: '#999',
+    fontSize: 16,
+    fontWeight: 'bold',
+    transition: 'all 0.3s ease',
+  },
+  focusedLabel: {
+    color: '#000',
+    top: -10,
+    fontSize: 12,
+  },
   input: {
     backgroundColor: '#f5f5f5',
     padding: 15,
@@ -172,11 +243,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     fontSize: 16,
-    marginBottom: 15,
   },
   passwordContainer: {
     position: 'relative',
     marginBottom: 15,
+    marginTop: 20,
   },
   passwordInput: {
     paddingRight: 45,
