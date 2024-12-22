@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons'; // Pastikan Anda telah menginstal @expo/vector-icons
 
 const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
 
@@ -21,6 +22,7 @@ const RegisterScreen = ({ navigation }) => {
     nama: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State untuk visibilitas password
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -128,14 +130,26 @@ const RegisterScreen = ({ navigation }) => {
         placeholderTextColor="#999"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={formData.password}
-        onChangeText={(value) => handleInputChange('password', value)}
-        secureTextEntry
-        placeholderTextColor="#999"
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={[styles.input, styles.passwordInput]}
+          placeholder="Password"
+          value={formData.password}
+          onChangeText={(value) => handleInputChange('password', value)}
+          secureTextEntry={!showPassword}
+          placeholderTextColor="#999"
+        />
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => setShowPassword(!showPassword)}
+        >
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={24}
+            color="#999"
+          />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity 
         style={[styles.registerButton, loading && styles.registerButtonDisabled]}
@@ -189,6 +203,18 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     fontSize: 16,
     marginBottom: 15,
+  },
+  passwordContainer: {
+    position: 'relative',
+    marginBottom: 15,
+  },
+  passwordInput: {
+    paddingRight: 45,
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
   },
   registerButton: {
     backgroundColor: '#1e90ff',

@@ -9,16 +9,17 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons'; // Pastikan Anda telah menginstal @expo/vector-icons
 
 const API_BASE_URL = 'http://192.168.10.15:5000/api/auth'; // Sesuaikan dengan IP komputer Anda
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Validasi input
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
@@ -41,11 +42,9 @@ const LoginScreen = ({ navigation }) => {
       const data = await response.json();
 
       if (data.success) {
-        // Simpan token dan data user
         await AsyncStorage.setItem('userToken', data.data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
 
-        // Cek apakah admin
         if (email === "admin@tiketku.com" && password === "kel7dpm") {
           Alert.alert(
             "Admin Login",
@@ -63,7 +62,6 @@ const LoginScreen = ({ navigation }) => {
             { cancelable: false }
           );
         } else {
-          // User biasa langsung ke Home
           navigation.replace("Home");
         }
       } else {
@@ -95,14 +93,26 @@ const LoginScreen = ({ navigation }) => {
         placeholderTextColor="#999"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholderTextColor="#999"
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={[styles.input, styles.passwordInput]}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          placeholderTextColor="#999"
+        />
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => setShowPassword(!showPassword)}
+        >
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={24}
+            color="#999"
+          />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity 
         onPress={() => navigation.navigate("ForgotPassword")}
@@ -163,6 +173,18 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     fontSize: 16,
     marginBottom: 15,
+  },
+  passwordContainer: {
+    position: 'relative',
+    marginBottom: 15,
+  },
+  passwordInput: {
+    paddingRight: 45,
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
