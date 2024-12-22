@@ -7,7 +7,7 @@ import RegisterScreen from "./src/Login/RegisterScreen";
 import ForgotPasswordScreen from "./src/Login/ForgotPassword";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
-import BackendScreen from "./src/screens/backendScreen"; // Add this import
+import BackendScreen from "./src/screens/backendScreen";
 
 const Stack = createStackNavigator();
 
