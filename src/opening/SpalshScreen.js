@@ -13,38 +13,42 @@ const SplashScreen = ({ navigation }) => {
 
   useEffect(() => {
     Animated.sequence([
-      // Ball falling animation
+      // Ball falling to the middle of the screen
       Animated.timing(ballY, {
-        toValue: height / 2 - 30, // Adjusted to align with text
+        toValue: height / 2 - 200, // Mid-screen bounce height
         duration: 1000,
         useNativeDriver: true,
       }),
-      // Small bounce
+      // Bounce towards the bottom edge
       Animated.timing(ballY, {
-        toValue: height / 2 - 40,
+        toValue: height - 100, // Adjusted to stay visible at the bottom
         duration: 300,
         useNativeDriver: true,
       }),
-      // Final position
       Animated.timing(ballY, {
-        toValue: height / 2 - 30,
-        duration: 200,
+        toValue: height / 8 - 100, // Bounce back to middle
+        duration: 300,
         useNativeDriver: true,
       }),
-      // Transform ball to letter T
+      // Ball "explodes" into T with better animation
       Animated.parallel([
         Animated.timing(ballOpacity, {
           toValue: 0,
-          duration: 200,
+          duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(letterTOpacity, {
           toValue: 1,
-          duration: 400,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.spring(ballScale, {
+          toValue: 2,
+          friction: 5,
           useNativeDriver: true,
         }),
       ]),
-      // Reveal "iketKu"
+      // Expand "iketKu" text
       Animated.timing(additionalTextWidth, {
         toValue: 1,
         duration: 800,
@@ -59,14 +63,14 @@ const SplashScreen = ({ navigation }) => {
     ]).start(() => {
       setTimeout(() => {
         navigation.replace('Login');
-      }, 1000);
+      }, 2000); // 2-second delay before navigating
     });
   }, [navigation]);
 
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {/* Animated ball that transforms into T */}
+        {/* Animated ball */}
         <View style={styles.textContainer}>
           <Animated.View
             style={[
@@ -77,6 +81,7 @@ const SplashScreen = ({ navigation }) => {
                   { scale: ballScale },
                 ],
                 opacity: ballOpacity,
+                left: width / 5 - 25, // Adjusted to center the ball
               },
             ]}
           />
@@ -85,19 +90,15 @@ const SplashScreen = ({ navigation }) => {
               styles.letterT,
               {
                 opacity: letterTOpacity,
-                transform: [{ translateY: ballY }],
               },
             ]}>
             T
           </Animated.Text>
-          
-          {/* Animated iketKu text */}
           <Animated.Text
             style={[
               styles.additionalText,
               {
                 transform: [
-                  { translateY: ballY },
                   { scaleX: additionalTextWidth },
                 ],
                 opacity: additionalTextWidth,
@@ -106,7 +107,6 @@ const SplashScreen = ({ navigation }) => {
             iketKu
           </Animated.Text>
         </View>
-
         {/* Powered by text */}
         <Animated.Text
           style={[
@@ -139,25 +139,27 @@ const styles = StyleSheet.create({
   },
   ball: {
     position: 'absolute',
-    width: 20,
-    height: 20,
+    width: 50, // Enlarged ball size
+    height: 50, // Enlarged ball size
     backgroundColor: '#1e90ff',
-    borderRadius: 10,
+    borderRadius: 25, // Rounded for larger ball
   },
   letterT: {
-    fontSize: 48,
+    fontSize: 100,
     color: '#1e90ff',
     fontWeight: 'bold',
+    opacity: 100, // Initially hidden
   },
   additionalText: {
-    fontSize: 48,
-    color: '#1e90ff',
+    fontSize: 60,
+    color: '#000', // Black color for "iketKu"
     fontWeight: 'bold',
     marginLeft: 2,
+    transform: [{ scaleX: 0 }], // Initially hidden
   },
   subtitle: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 280,
     fontSize: 16,
     color: '#666',
   },
