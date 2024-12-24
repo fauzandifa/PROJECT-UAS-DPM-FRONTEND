@@ -1,1 +1,1 @@
-const API_BASE_URL = 'http://192.168.1.3:5000/api';
+const DEV_API_URL = 'http://localhost:5000/api';

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 // Register Controller
 exports.register = async (req, res) => {
+    console.log('Received registration request:', req.body);
     try {
         const { username, email, password, nama } = req.body;
 
@@ -59,7 +60,7 @@ exports.register = async (req, res) => {
             error: error.message
         });
     }
-};
+}; 
 
 // Login Controller
 exports.login = async (req, res) => {

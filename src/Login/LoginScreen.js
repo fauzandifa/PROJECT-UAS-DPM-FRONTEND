@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
-const API_BASE_URL = 'http://192.168.1.3:5000/api/auth';
+const API_BASE_URL = 'http://10.0.2.2:5000/api/auth';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");

@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    collection: 'user' // Memastikan menggunakan collection 'user'
 });
 
 module.exports = mongoose.model('User', userSchema);
