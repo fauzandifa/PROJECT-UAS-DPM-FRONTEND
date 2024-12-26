@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
-import { fetchMovies } from "../api/TMDBApi";
+import { fetchMovies, searchMovies } from "../api/TMDBApi";
 import MovieList from "../components/MovieList";
 import Navbar from "../components/Navbar";
 import ProfilePage from "../components/ProfilePage"; // Import ProfilePage
@@ -11,6 +11,8 @@ const HomeScreen = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // State untuk query pencarian
+  const [searchResults, setSearchResults] = useState([]); // State untuk hasil pencarian
 
   useEffect(() => {
     const fetchAllMovies = async () => {
@@ -20,6 +22,19 @@ const HomeScreen = () => {
     };
     fetchAllMovies();
   }, []);
+
+  // Fungsi untuk menangani perubahan input pencarian
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+    if (query) {
+      // Jika ada query, lakukan pencarian film
+      const results = await searchMovies(query);
+      setSearchResults(results);
+    } else {
+      // Jika tidak ada query, tampilkan hasil film yang sudah ada
+      setSearchResults([]);
+    }
+  };
 
   const renderPageContent = () => {
     switch (activePage) {
@@ -48,10 +63,17 @@ const HomeScreen = () => {
           style={styles.searchBar}
           placeholder="Search movies, genres..."
           placeholderTextColor="#aaa"
+          value={searchQuery}
+          onChangeText={handleSearch} // Mengupdate query pencarian
         />
       )}
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-        {renderPageContent()}
+        {/* Jika ada hasil pencarian, tampilkan hasil tersebut */}
+        {searchResults.length > 0 ? (
+          <MovieList title="Search Results" movies={searchResults} />
+        ) : (
+          renderPageContent()
+        )}
       </ScrollView>
       <Navbar activePage={activePage} setActivePage={setActivePage} />
     </View>
