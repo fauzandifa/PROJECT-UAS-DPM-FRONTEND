@@ -44,7 +44,17 @@ const ProfilePage = () => {
       <View style={styles.menuSection}>
         <MenuItem icon="person-outline" title="info pribadi" />
         <MenuItem icon="notifications-outline" title="notifikasi" />
-        <MenuItem icon="card-outline" title="History Pembayaran" />
+        <MenuItem
+          icon="card-outline"
+          title="History Pembayaran"
+          onPress={() => navigation.navigate("HistoryScreen")}
+        />
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={() => navigation.navigate("HistoryScreen")}
+        >
+          <Text style={styles.messageButtonText}>History Pembayaran</Text>
+        </TouchableOpacity>
         <MenuItem icon="help-circle-outline" title="hubungi admin" />
         <MenuItem icon="settings-outline" title="pengaturan" />
       </View>
@@ -89,7 +99,6 @@ const ProfilePage = () => {
     </ScrollView>
   );
 };
-
 export default ProfilePage;
 
 // Gaya untuk modal

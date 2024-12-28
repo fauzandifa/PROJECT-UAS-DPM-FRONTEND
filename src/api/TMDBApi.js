@@ -16,35 +16,14 @@ const TMDBApi = axios.create({
 });
 
 // Fetch movies from the API
+
+
 export const fetchMovies = async (endpoint) => {
   try {
     const response = await TMDBApi.get(endpoint);
     return response.data.results;
   } catch (error) {
-    console.error(
-      `Error fetching movies from ${endpoint}:`,
-      error.response?.data || error.message
-    );
-    return [];
-  }
-};
-
-// Search movies based on the query
-export const searchMovies = async (query) => {
-  try {
-    const response = await TMDBApi.get("/search/movie", {
-      params: {
-        query: query, // The search query
-        page: 1, // The page of results (can be adjusted if you want pagination)
-        include_adult: false, // Optional: whether to include adult content
-      },
-    });
-    return response.data.results; // Returning the list of results
-  } catch (error) {
-    console.error(
-      "Error searching movies:",
-      error.response?.data || error.message
-    );
+    console.error("Error fetching movies:", error.message);
     return [];
   }
 };

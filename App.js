@@ -7,7 +7,7 @@ import RegisterScreen from "./src/Login/RegisterScreen";
 import ForgotPasswordScreen from "./src/Login/ForgotPassword";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
-import BackendScreen from "./src/screens/backendScreen";
+import HistoryScreen from "./src/screens/HistoryScreen";  // Import HistoryScreen
 
 const Stack = createStackNavigator();
 
@@ -57,13 +57,9 @@ const App = () => {
           options={{ title: 'Profile' }}
         />
         <Stack.Screen 
-          name="BackendScreen" 
-          component={BackendScreen}
-          options={{ 
-            headerShown: false,
-            // Prevent going back to login screen
-            gestureEnabled: false,
-          }}
+          name="HistoryScreen"  // Pastikan sudah ada route ini
+          component={HistoryScreen}
+          options={{ title: "Riwayat Pembayaran" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  ActivityIndicator,
+} from "react-native";
 import { fetchMovies, searchMovies } from "../api/TMDBApi";
 import MovieList from "../components/MovieList";
 import Navbar from "../components/Navbar";
@@ -13,12 +19,24 @@ const HomeScreen = () => {
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // State untuk query pencarian
   const [searchResults, setSearchResults] = useState([]); // State untuk hasil pencarian
+  const [isLoading, setIsLoading] = useState(false); // State untuk menampilkan loading indicator
 
   useEffect(() => {
     const fetchAllMovies = async () => {
-      setPopularMovies(await fetchMovies("/movie/popular"));
-      setNowPlayingMovies(await fetchMovies("/movie/now_playing"));
-      setComingSoonMovies(await fetchMovies("/movie/upcoming"));
+      setIsLoading(true);
+      try {
+        const popular = await fetchMovies("/movie/popular");
+        const nowPlaying = await fetchMovies("/movie/now_playing");
+        const comingSoon = await fetchMovies("/movie/upcoming");
+
+        setPopularMovies(popular);
+        setNowPlayingMovies(nowPlaying);
+        setComingSoonMovies(comingSoon);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchAllMovies();
   }, []);
@@ -26,6 +44,7 @@ const HomeScreen = () => {
   // Fungsi untuk menangani perubahan input pencarian
   const handleSearch = async (query) => {
     setSearchQuery(query);
+    setIsLoading(true); // Show loading indicator when searching
     if (query) {
       // Jika ada query, lakukan pencarian film
       const results = await searchMovies(query);
@@ -34,6 +53,7 @@ const HomeScreen = () => {
       // Jika tidak ada query, tampilkan hasil film yang sudah ada
       setSearchResults([]);
     }
+    setIsLoading(false); // Hide loading indicator after search is complete
   };
 
   const renderPageContent = () => {
@@ -68,8 +88,14 @@ const HomeScreen = () => {
         />
       )}
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-        {/* Jika ada hasil pencarian, tampilkan hasil tersebut */}
-        {searchResults.length > 0 ? (
+        {/* Menampilkan indikator loading jika sedang mengambil data */}
+        {isLoading ? (
+          <ActivityIndicator
+            size="large"
+            color="#00ff00"
+            style={{ marginTop: 20 }}
+          />
+        ) : searchResults.length > 0 ? (
           <MovieList title="Search Results" movies={searchResults} />
         ) : (
           renderPageContent()

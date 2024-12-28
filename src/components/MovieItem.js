@@ -9,7 +9,8 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker"; // Pastikan sudah menginstal library ini
+import DateTimePicker from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MovieItem = ({ item }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -19,14 +20,32 @@ const MovieItem = ({ item }) => {
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const handlePayment = () => {
-    Alert.alert(
-      "Pembayaran",
-      `Tiket untuk ${
-        item.title
-      } berhasil dipesan!\nTanggal: ${selectedDate.toDateString()}\nWaktu: ${selectedTime.toLocaleTimeString()}`
-    );
-    setModalVisible(false);
+  const handlePayment = async () => {
+    try {
+      const newPayment = {
+        title: item.title,
+        date: selectedDate.toDateString(),
+        time: selectedTime.toLocaleTimeString(),
+        tickets: ticketCount,
+      };
+
+      const existingPayments = await AsyncStorage.getItem("paymentHistory");
+      const updatedPayments = existingPayments
+        ? [...JSON.parse(existingPayments), newPayment]
+        : [newPayment];
+
+      await AsyncStorage.setItem("paymentHistory", JSON.stringify(updatedPayments));
+
+      Alert.alert(
+        "Pembayaran",
+        `Tiket untuk ${item.title} berhasil dipesan!\nTanggal: ${selectedDate.toDateString()}\nWaktu: ${selectedTime.toLocaleTimeString()}`
+      );
+
+      setModalVisible(false);
+    } catch (error) {
+      Alert.alert("Error", "Terjadi kesalahan saat memproses pembayaran.");
+      console.error("Error saving payment history:", error);
+    }
   };
 
   const onDateChange = (event, date) => {
@@ -133,7 +152,7 @@ const MovieItem = ({ item }) => {
                 <Text style={styles.buttonPrimaryText}>Bayar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.buttonCancel} 
+                style={styles.buttonCancel}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.buttonSecondaryText}>Batal</Text>
@@ -221,13 +240,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  button: {
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
   buttonPrimary: {
     backgroundColor: "#1e90ff",
     paddingVertical: 12,
@@ -238,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonSecondary: {
-    backgroundColor: "#1e90ff", // Konsisten dengan warna tombol utama
+    backgroundColor: "#1e90ff",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -247,7 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonCancel: {
-    backgroundColor: "#ff0000", // Merah untuk tombol Batal
+    backgroundColor: "#ff0000",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
