@@ -13,23 +13,19 @@ import { useNavigation } from "@react-navigation/native";
 
 const ProfilePage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isSettingsModalVisible, setSettingsModalVisible] = useState(false); // New state for settings modal
   const navigation = useNavigation();
 
   const handleLogout = () => {
-    // Tutup modal dan navigasi ke halaman login
-    setModalVisible(false);
-    navigation.replace("Login");
+    setModalVisible(false); // Close the logout confirmation modal
+    navigation.replace("Login"); // Navigate to Login screen
   };
 
-  const openLogoutConfirmation = () => {
-    // Tampilkan modal konfirmasi
-    setModalVisible(true);
-  };
+  const openLogoutConfirmation = () => setModalVisible(true);
+  const closeLogoutConfirmation = () => setModalVisible(false);
 
-  const closeLogoutConfirmation = () => {
-    // Tutup modal tanpa keluar
-    setModalVisible(false);
-  };
+  const openSettingsModal = () => setSettingsModalVisible(true); // Open settings modal
+  const closeSettingsModal = () => setSettingsModalVisible(false); // Close settings modal
 
   return (
     <ScrollView style={styles.profileContainer}>
@@ -42,21 +38,36 @@ const ProfilePage = () => {
       </View>
 
       <View style={styles.menuSection}>
-        <MenuItem icon="person-outline" title="info pribadi" />
-        <MenuItem icon="notifications-outline" title="notifikasi" />
-        <MenuItem
-          icon="card-outline"
-          title="History Pembayaran"
-          onPress={() => navigation.navigate("HistoryScreen")}
-        />
+        <MenuItem icon="person-outline" title="Info Pribadi" />
+        <MenuItem icon="notifications-outline" title="Notifikasi" />
         <TouchableOpacity
           style={styles.messageButton}
           onPress={() => navigation.navigate("HistoryScreen")}
         >
           <Text style={styles.messageButtonText}>History Pembayaran</Text>
         </TouchableOpacity>
-        <MenuItem icon="help-circle-outline" title="hubungi admin" />
-        <MenuItem icon="settings-outline" title="pengaturan" />
+        <MenuItem
+          icon="help-circle-outline"
+          title="hubungi admin"
+          onPress={() => navigation.navigate("ChatAdmin")} // Arahkan ke halaman chat admin
+        />
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={() => navigation.navigate("ChatAdmin")}
+        >
+          <Text style={styles.messageButtonText}>hubungi admin</Text>
+        </TouchableOpacity>
+        <MenuItem
+          icon="settings-outline"
+          title="Pengaturan"
+          onPress={openSettingsModal} // Open settings modal on press
+        />
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={openSettingsModal}
+        >
+          <Text style={styles.messageButtonText}>setting</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -96,9 +107,52 @@ const ProfilePage = () => {
           </View>
         </View>
       </Modal>
+
+      {/* Settings Modal */}
+      <Modal
+        visible={isSettingsModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeSettingsModal}
+      >
+        <View style={modalStyles.modalOverlay}>
+          <View style={modalStyles.modalContent}>
+            <Text style={modalStyles.modalTitle}>Pengaturan</Text>
+            <View style={modalStyles.settingsOptions}>
+              <TouchableOpacity
+                style={modalStyles.optionButton}
+                onPress={() => navigation.navigate("ChangePasswordScreen")}
+              >
+                <Text style={modalStyles.optionText}>Ubah Kata Sandi</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={modalStyles.optionButton}
+                onPress={() => console.log("Change Notifications Preferences")}
+              >
+                <Text style={modalStyles.optionText}>
+                  Preferensi Notifikasi
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={modalStyles.optionButton}
+                onPress={() => console.log("Theme Settings")}
+              >
+                <Text style={modalStyles.optionText}>Tema Aplikasi</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={modalStyles.closeButton}
+              onPress={closeSettingsModal}
+            >
+              <Text style={modalStyles.closeButtonText}>Tutup</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
+
 export default ProfilePage;
 
 // Gaya untuk modal
@@ -132,7 +186,7 @@ const modalStyles = StyleSheet.create({
     width: "100%",
   },
   noButton: {
-    backgroundColor: "#007BFF", // Warna biru
+    backgroundColor: "#007BFF", // Blue color
     padding: 10,
     borderRadius: 5,
     flex: 1,
@@ -140,7 +194,7 @@ const modalStyles = StyleSheet.create({
     marginRight: 5,
   },
   yesButton: {
-    backgroundColor: "#FF0000", // Warna merah
+    backgroundColor: "#FF0000", // Red color
     padding: 10,
     borderRadius: 5,
     flex: 1,
@@ -152,6 +206,31 @@ const modalStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   yesButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  // Styling for settings modal
+  settingsOptions: {
+    marginVertical: 20,
+  },
+  optionButton: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+    width: "100%",
+    alignItems: "center",
+  },
+  optionText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#FF6347",
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
     color: "white",
     fontWeight: "bold",
   },
