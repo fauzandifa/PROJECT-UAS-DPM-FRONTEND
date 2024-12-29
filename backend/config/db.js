@@ -4,7 +4,7 @@ require('dotenv').config();
 const connectDB = async () => {
     try {
         // Pastikan URI menggunakan nama database yang benar
-        const MONGODB_URI = 'mongodb://localhost:27017/TiketKu';
+        const MONGODB_URI = 'mongodb+srv://nrizh31:sheysze@cluster1.1zsre.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1';
         
         const conn = await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
