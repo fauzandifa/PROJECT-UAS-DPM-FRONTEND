@@ -27,3 +27,17 @@ export const fetchMovies = async (endpoint) => {
     return [];
   }
 };
+
+export const searchMovies = async (query) => {
+  try {
+    const response = await TMDBApi.get("/search/movie", {
+      params: {
+        query: query,
+      },
+    });
+    return response.data.results;
+  } catch (error) {
+    console.error("Error searching movies:", error.message);
+    return [];
+  }
+};

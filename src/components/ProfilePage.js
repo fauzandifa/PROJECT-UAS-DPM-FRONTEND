@@ -10,6 +10,7 @@ import {
 import MenuItem from "./MenuItem";
 import styles from "../styles/styles";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 const ProfilePage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -41,32 +42,22 @@ const ProfilePage = () => {
         <MenuItem icon="person-outline" title="Info Pribadi" />
         <MenuItem icon="notifications-outline" title="Notifikasi" />
         <TouchableOpacity
-          style={styles.messageButton}
+          style={styles.menuItem}
           onPress={() => navigation.navigate("HistoryScreen")}
         >
-          <Text style={styles.messageButtonText}>History Pembayaran</Text>
+          <Ionicons name="card-outline" size={24} color="#000" />
+          <Text style={styles.menuItemText}> history pembayaran</Text>
         </TouchableOpacity>
-        <MenuItem
-          icon="help-circle-outline"
-          title="hubungi admin"
-          onPress={() => navigation.navigate("ChatAdmin")} // Arahkan ke halaman chat admin
-        />
         <TouchableOpacity
-          style={styles.messageButton}
+          style={styles.menuItem}
           onPress={() => navigation.navigate("ChatAdmin")}
         >
-          <Text style={styles.messageButtonText}>hubungi admin</Text>
+          <Ionicons name="help-circle-outline" size={24} color="#000" />
+          <Text style={styles.menuItemText}> Hubungi Admin</Text>
         </TouchableOpacity>
-        <MenuItem
-          icon="settings-outline"
-          title="Pengaturan"
-          onPress={openSettingsModal} // Open settings modal on press
-        />
-        <TouchableOpacity
-          style={styles.messageButton}
-          onPress={openSettingsModal}
-        >
-          <Text style={styles.messageButtonText}>setting</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={openSettingsModal}>
+          <Ionicons name="settings-outline" size={24} color="#000" />
+          <Text style={styles.menuItemText}> Pengaturan</Text>
         </TouchableOpacity>
       </View>
 

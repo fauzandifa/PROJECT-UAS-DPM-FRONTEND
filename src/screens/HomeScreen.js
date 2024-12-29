@@ -44,7 +44,6 @@ const HomeScreen = () => {
   // Fungsi untuk menangani perubahan input pencarian
   const handleSearch = async (query) => {
     setSearchQuery(query);
-    setIsLoading(true); // Show loading indicator when searching
     if (query) {
       // Jika ada query, lakukan pencarian film
       const results = await searchMovies(query);
@@ -53,7 +52,6 @@ const HomeScreen = () => {
       // Jika tidak ada query, tampilkan hasil film yang sudah ada
       setSearchResults([]);
     }
-    setIsLoading(false); // Hide loading indicator after search is complete
   };
 
   const renderPageContent = () => {
@@ -81,7 +79,7 @@ const HomeScreen = () => {
       {activePage !== "profile" && (
         <TextInput
           style={styles.searchBar}
-          placeholder="Search movies, genres..."
+          placeholder="Search films"
           placeholderTextColor="#aaa"
           value={searchQuery}
           onChangeText={handleSearch} // Mengupdate query pencarian
@@ -101,7 +99,12 @@ const HomeScreen = () => {
           renderPageContent()
         )}
       </ScrollView>
-      <Navbar activePage={activePage} setActivePage={setActivePage} />
+      {/* Conditionally render Navbar based on searchQuery */}
+      <Navbar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        disabled={searchQuery !== ""}
+      />
     </View>
   );
 };
