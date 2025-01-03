@@ -5,11 +5,12 @@ import Opening from "./src/opening/SpalshScreen";
 import LoginScreen from "./src/Login/LoginScreen";
 import RegisterScreen from "./src/Login/RegisterScreen";
 import ForgotPasswordScreen from "./src/Login/ForgotPassword";
-import HomeScreen from "./src/screens/HomeScreen";
+import NowPlayingPage from "./src/screens/NowPlayingPage";
+import ComingSoonPage from "./src/screens/ComingSoonPage";
 import ProfileScreen from "./src/screens/ProfileScreen";
-import HistoryScreen from "./src/screens/HistoryScreen"; // Import HistoryScreen
-import BackendScreen from "./src/screens/backendScreen"; // Import BackendScreen
-import ChatAdmin from "./src/screens/ChatAdmin"; // Import ChatAdmin
+import HistoryScreen from "./src/screens/HistoryScreen";
+import BackendScreen from "./src/screens/backendScreen";
+import ChatAdmin from "./src/screens/ChatAdmin";
 
 const Stack = createStackNavigator();
 
@@ -50,8 +51,13 @@ const App = () => {
         />
         <Stack.Screen
           name="Home"
-          component={HomeScreen}
+          component={NowPlayingPage}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ComingSoon"
+          component={ComingSoonPage}
+          options={{ title: "Coming Soon" }}
         />
         <Stack.Screen
           name="Profile"
@@ -64,11 +70,10 @@ const App = () => {
           options={{ title: "Riwayat Pembayaran" }}
         />
         <Stack.Screen
-          name="BackendScreen" // Ensure this matches the navigation action
+          name="BackendScreen"
           component={BackendScreen}
           options={{ title: "Backend Screen" }}
         />
-        {/* Add the ChatAdmin screen route */}
         <Stack.Screen
           name="ChatAdmin"
           component={ChatAdmin}
