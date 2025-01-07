@@ -11,6 +11,7 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import HistoryScreen from "./src/screens/HistoryScreen";
 import BackendScreen from "./src/screens/backendScreen";
 import ChatAdmin from "./src/screens/ChatAdmin";
+import PaymentPage from "./src/screens/PaymentPage";
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,11 @@ const App = () => {
           name="ChatAdmin"
           component={ChatAdmin}
           options={{ title: "Chat with Admin" }}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={PaymentPage}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
