@@ -254,14 +254,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   buyButton: {
-    backgroundColor: "#ff0000",
+    backgroundColor: "#1e90ff",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
   },
   buyButtonText: {
-    color: "#fff",
+    color: "white",
     fontWeight: "bold",
     fontSize: 16,
   },
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   selectedDate: {
-    backgroundColor: "#ff0000",
+    backgroundColor: "#1e90ff",
   },
   timeList: {
     marginVertical: 20,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   selectedTime: {
-    backgroundColor: "#ff0000",
+    backgroundColor: "#1e90ff",
   },
   input: {
     borderWidth: 1,

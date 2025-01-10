@@ -17,6 +17,7 @@ const NowPlayingPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activePage, setActivePage] = useState("NowPlaying");
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -50,6 +51,7 @@ const NowPlayingPage = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Now Playing Movies</Text>
+        <Text style={styles.greeting}>HEHEHEHE</Text>
       </View>
       <TextInput
         style={styles.searchBar}
@@ -74,7 +76,11 @@ const NowPlayingPage = () => {
           </>
         )}
       </ScrollView>
-      <Navbar disabled={searchQuery !== ""} />
+      <Navbar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        disabled={searchQuery !== ""}
+      />
     </View>
   );
 };

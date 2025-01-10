@@ -3,11 +3,12 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const Navbar = ({ disabled }) => {
+const Navbar = ({ activePage, setActivePage, disabled }) => {
   const navigation = useNavigation();
 
   const handleNavigation = (route) => {
     if (!disabled) {
+      setActivePage(route);
       navigation.navigate(route);
     }
   };
@@ -18,24 +19,56 @@ const Navbar = ({ disabled }) => {
         style={styles.navItem}
         onPress={() => handleNavigation("Home")}
       >
-        <Ionicons name="film-outline" size={24} color="#1e90ff" />
-        <Text style={[styles.navText, { color: "#1e90ff" }]}>Film</Text>
+        <Ionicons
+          name="film-outline"
+          size={24}
+          color={activePage === "NowPlaying" ? "#1e90ff" : "#555"}
+        />
+        <Text
+          style={[
+            styles.navText,
+            { color: activePage === "NowPlaying" ? "#1e90ff" : "#555" },
+          ]}
+        >
+          Film
+        </Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.navItem}
         onPress={() => handleNavigation("ComingSoon")}
       >
-        <Ionicons name="time-outline" size={24} color="#555" />
-        <Text style={styles.navText}>Coming Soon</Text>
+        <Ionicons
+          name="time-outline"
+          size={24}
+          color={activePage === "ComingSoon" ? "#1e90ff" : "#555"}
+        />
+        <Text
+          style={[
+            styles.navText,
+            { color: activePage === "ComingSoon" ? "#1e90ff" : "#555" },
+          ]}
+        >
+          Coming Soon
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.navItem}
         onPress={() => handleNavigation("Profile")}
       >
-        <Ionicons name="person-outline" size={24} color="#555" />
-        <Text style={styles.navText}>Profile</Text>
+        <Ionicons
+          name="person-outline"
+          size={24}
+          color={activePage === "Profile" ? "#1e90ff" : "#555"}
+        />
+        <Text
+          style={[
+            styles.navText,
+            { color: activePage === "Profile" ? "#1e90ff" : "#555" },
+          ]}
+        >
+          Profile
+        </Text>
       </TouchableOpacity>
     </View>
   );

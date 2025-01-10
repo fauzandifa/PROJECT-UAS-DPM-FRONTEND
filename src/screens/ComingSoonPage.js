@@ -16,6 +16,7 @@ const ComingSoonPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activePage, setActivePage] = useState("ComingSoon");
 
   useEffect(() => {
     const loadComingSoonMovies = async () => {
@@ -65,7 +66,11 @@ const ComingSoonPage = () => {
           <MovieList title="Coming Soon" movies={comingSoonMovies} />
         )}
       </ScrollView>
-      <Navbar disabled={searchQuery !== ""} />
+      <Navbar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        disabled={searchQuery !== ""}
+      />
     </View>
   );
 };
