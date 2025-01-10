@@ -16,66 +16,91 @@ import { Ionicons } from "@expo/vector-icons";
 const API_BASE_URL = "http://192.168.1.5:5000/api/auth";
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [emailFocused, setEmailFocused] = useState(false);
+  const [emailOrUsernameFocused, setEmailOrUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [emailLabelPosition] = useState(new Animated.Value(0));
+  const [emailOrUsernameLabelPosition] = useState(new Animated.Value(0));
   const [passwordLabelPosition] = useState(new Animated.Value(0));
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!emailOrUsername || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-
+  
     try {
       setLoading(true);
-
-      if (email === "admin@tiketku.com" && password === "dpmkel7") {
+      console.log('Attempting login with:', { emailOrUsername, password });
+  
+      // Mock Admin check
+      if (emailOrUsername === "admin@tiketku.com" && password === "dpmkel7") {
+        console.log('Admin login detected');
         const adminData = {
           id: "admin",
           email: "admin@tiketku.com",
           username: "admin",
           nama: "Administrator",
         };
-
+  
         await AsyncStorage.setItem("userToken", "admin-token");
         await AsyncStorage.setItem("userData", JSON.stringify(adminData));
-
+  
         setModalVisible(true);
         setLoading(false);
         return;
       }
-
+  
+      // Log request details
+      console.log('Sending request to:', `${API_BASE_URL}/login`);
+      console.log('Request body:', {
+        login: emailOrUsername,
+        password,
+      });
+  
+      // Send credentials to the API
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          password,
+          email: emailOrUsername,  // server mengharapkan field 'email'
+          password: password,
         }),
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        await AsyncStorage.setItem("userToken", data.data.token);
-        await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
+  
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+  
+      // Check if response is OK (status 200)
+      if (!response.ok) {
+        throw new Error(responseData.message || "Failed to login. Please check your credentials.");
+      }
+  
+      if (responseData.success) {
+        console.log('Login successful, saving user data');
+        // Successful login
+        await AsyncStorage.setItem("userToken", responseData.data.token);
+        await AsyncStorage.setItem("userData", JSON.stringify(responseData.data.user));
         navigation.replace("Home");
       } else {
-        Alert.alert("Login Failed", data.message || "Invalid credentials");
+        // Handle failed login
+        console.log('Login failed:', responseData.message);
+        Alert.alert("Login Failed", responseData.message || "Invalid credentials");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error details:", {
+        message: error.message,
+        stack: error.stack
+      });
       Alert.alert(
         "Error",
-        "Unable to connect to server. Please check your internet connection."
+        error.message || "Unable to connect to server. Please check your internet connection."
       );
     } finally {
       setLoading(false);
@@ -144,21 +169,23 @@ const LoginScreen = ({ navigation }) => {
         <Animated.Text
           style={[
             styles.label,
-            { transform: [{ translateY: emailLabelPosition }] },
-            emailFocused && styles.focusedLabel,
+            { transform: [{ translateY: emailOrUsernameLabelPosition }] },
+            emailOrUsernameFocused && styles.focusedLabel,
           ]}
         >
-          Email
+          Email or Username
         </Animated.Text>
         <TextInput
           style={styles.input}
-          value={email}
-          onChangeText={setEmail}
+          value={emailOrUsername}
+          onChangeText={setEmailOrUsername}
           keyboardType="email-address"
           autoCapitalize="none"
-          onFocus={() => handleFocus(setEmailFocused, emailLabelPosition)}
-          onBlur={() => handleBlur(setEmailFocused, email, emailLabelPosition)}
-          placeholder="Email"
+          onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
+          onBlur={() =>
+            handleBlur(setEmailOrUsernameFocused, emailOrUsername, emailOrUsernameLabelPosition)
+          }
+          placeholder="Email or Username"
           placeholderTextColor="#999"
         />
       </View>
