@@ -1,1 +1,0 @@
-const DEV_API_URL = 'mongodb+srv://nrizh31:sheysze@cluster1.1zsre.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1';

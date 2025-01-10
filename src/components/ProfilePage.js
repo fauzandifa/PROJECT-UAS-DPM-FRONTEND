@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -13,29 +13,48 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 const ProfilePage = () => {
+  const [userData, setUserData] = useState(null); // State to hold user data
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isSettingsModalVisible, setSettingsModalVisible] = useState(false); // New state for settings modal
+  const [isSettingsModalVisible, setSettingsModalVisible] = useState(false);
   const navigation = useNavigation();
 
+  useEffect(() => {
+    // Fetch user data from backend
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("http://192.168.1.5:5000/api/auth"); // Replace with your API endpoint
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const handleLogout = () => {
-    setModalVisible(false); // Close the logout confirmation modal
-    navigation.replace("Login"); // Navigate to Login screen
+    setModalVisible(false);
+    navigation.replace("Login");
   };
 
   const openLogoutConfirmation = () => setModalVisible(true);
   const closeLogoutConfirmation = () => setModalVisible(false);
 
-  const openSettingsModal = () => setSettingsModalVisible(true); // Open settings modal
-  const closeSettingsModal = () => setSettingsModalVisible(false); // Close settings modal
+  const openSettingsModal = () => setSettingsModalVisible(true);
+  const closeSettingsModal = () => setSettingsModalVisible(false);
 
   return (
     <ScrollView style={styles.profileContainer}>
       <View style={styles.profileHeader}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>VK</Text>
+          <Text style={styles.avatarText}>
+            {userData?.nama?.slice(0, 2).toUpperCase() || "NA"}
+          </Text>
         </View>
-        <Text style={styles.userName}>Vishal Khadok</Text>
-        <Text style={styles.userTagline}>I love fast food</Text>
+        <Text style={styles.userName}>{userData?.nama || "Loading..."}</Text>
+        <Text style={styles.userTagline}>{userData?.email || "Loading..."}</Text>
+        <Text style={styles.userInfo}>Username: {userData?.username || "Loading..."}</Text>
       </View>
 
       <View style={styles.menuSection}>
@@ -46,7 +65,7 @@ const ProfilePage = () => {
           onPress={() => navigation.navigate("HistoryScreen")}
         >
           <Ionicons name="card-outline" size={24} color="#000" />
-          <Text style={styles.menuItemText}> history pembayaran</Text>
+          <Text style={styles.menuItemText}> History Pembayaran</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
@@ -145,6 +164,7 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
 
 // Gaya untuk modal
 const modalStyles = StyleSheet.create({
