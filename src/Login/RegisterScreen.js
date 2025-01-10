@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://10.0.2.2:5000/api/auth';
+const API_BASE_URL = 'http://192.168.1.5:5000/api/auth';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({

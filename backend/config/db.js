@@ -3,23 +3,21 @@ require('dotenv').config();
 
 const connectDB = async () => {
     try {
-        // Pastikan URI menggunakan nama database yang benar
-        const MONGODB_URI = 'mongodb+srv://nrizh31:sheysze@cluster1.1zsre.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1';
-        
-        const conn = await mongoose.connect(MONGODB_URI, {
+        console.log('MongoDB URI:', process.env.MONGODB_URL);
+        const conn = await mongoose.connect(process.env.MONGODB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
 
-        // Verifikasi koneksi ke collection yang benar
-        const db = conn.connection.db;
-        const collections = await db.listCollections().toArray();
+        console.log('MongoDB Connected:', conn.connection.host);
+        
+        // Test database connection
+        const collections = await conn.connection.db.listCollections().toArray();
         console.log('Available collections:', collections.map(c => c.name));
-
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        
         return conn;
     } catch (error) {
-        console.error(`Error: ${error.message}`);
+        console.error('MongoDB connection error:', error);
         process.exit(1);
     }
 };
