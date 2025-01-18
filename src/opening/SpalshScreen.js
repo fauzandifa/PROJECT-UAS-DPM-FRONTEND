@@ -10,27 +10,30 @@ const SplashScreen = ({ navigation }) => {
   const letterTOpacity = new Animated.Value(0);
   const additionalTextWidth = new Animated.Value(0);
   const poweredTextOpacity = new Animated.Value(0);
+  
+  // Revised animated values for final transition
+  const logoScale = new Animated.Value(1);
+  const logoTranslateY = new Animated.Value(0);
+  const screenOpacity = new Animated.Value(1);
 
   useEffect(() => {
     Animated.sequence([
-      // Ball falling to the middle of the screen
+      // Initial animations remain the same
       Animated.timing(ballY, {
-        toValue: height / 2 - 200, // Mid-screen bounce height
+        toValue: height / 2 - 200,
         duration: 1000,
         useNativeDriver: true,
       }),
-      // Bounce towards the bottom edge
       Animated.timing(ballY, {
-        toValue: height - 100, // Adjusted to stay visible at the bottom
+        toValue: height - 100,
         duration: 300,
         useNativeDriver: true,
       }),
       Animated.timing(ballY, {
-        toValue: height / 8 - 100, // Bounce back to middle
+        toValue: height / 8 - 100,
         duration: 300,
         useNativeDriver: true,
       }),
-      // Ball "explodes" into T with better animation
       Animated.parallel([
         Animated.timing(ballOpacity, {
           toValue: 0,
@@ -48,30 +51,56 @@ const SplashScreen = ({ navigation }) => {
           useNativeDriver: true,
         }),
       ]),
-      // Expand "iketKu" text
       Animated.timing(additionalTextWidth, {
         toValue: 1,
         duration: 800,
         useNativeDriver: true,
       }),
-      // Show "Powered by" text
       Animated.timing(poweredTextOpacity, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }),
+      // Pause before final transition
+      new Animated.delay(1000),
+      // Final transition animations
+      Animated.parallel([
+        // Scale down the logo
+        Animated.timing(logoScale, {
+          toValue: 0.7,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        // Move logo up
+        Animated.timing(logoTranslateY, {
+          toValue: -200,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        // Fade out the screen
+        Animated.timing(screenOpacity, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start(() => {
-      setTimeout(() => {
-        navigation.replace('Login');
-      }, 2000); // 2-second delay before navigating
+      navigation.replace('Login');
     });
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       <View style={styles.contentContainer}>
-        {/* Animated ball */}
-        <View style={styles.textContainer}>
+        <Animated.View style={[
+          styles.logoContainer,
+          {
+            transform: [
+              { scale: logoScale },
+              { translateY: logoTranslateY }
+            ],
+          }
+        ]}>
           <Animated.View
             style={[
               styles.ball,
@@ -81,33 +110,36 @@ const SplashScreen = ({ navigation }) => {
                   { scale: ballScale },
                 ],
                 opacity: ballOpacity,
-                left: width / 5 - 25, // Adjusted to center the ball
+                left: width / 2 - 100,
               },
             ]}
           />
-          <Animated.Text
-            style={[
-              styles.letterT,
-              {
-                opacity: letterTOpacity,
-              },
-            ]}>
-            T
-          </Animated.Text>
-          <Animated.Text
-            style={[
-              styles.additionalText,
-              {
-                transform: [
-                  { scaleX: additionalTextWidth },
-                ],
-                opacity: additionalTextWidth,
-              },
-            ]}>
-            iketKu
-          </Animated.Text>
-        </View>
-        {/* Powered by text */}
+          
+          <View style={styles.textContainer}>
+            <Animated.Text
+              style={[
+                styles.letterT,
+                {
+                  opacity: letterTOpacity,
+                },
+              ]}>
+              T
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                styles.additionalText,
+                {
+                  transform: [
+                    { scaleX: additionalTextWidth },
+                  ],
+                  opacity: additionalTextWidth,
+                },
+              ]}>
+              iketKu
+            </Animated.Text>
+          </View>
+        </Animated.View>
+
         <Animated.Text
           style={[
             styles.subtitle,
@@ -118,7 +150,7 @@ const SplashScreen = ({ navigation }) => {
           Powered by Kelompok 7
         </Animated.Text>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -131,37 +163,49 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  logoContainer: {
+    position: 'relative',
+    height: 120,
+    width: width,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 60,
+    justifyContent: 'center',
+    height: 120,
+    paddingHorizontal: 20,
   },
   ball: {
     position: 'absolute',
-    width: 50, // Enlarged ball size
-    height: 50, // Enlarged ball size
+    width: 50,
+    height: 50,
     backgroundColor: '#1e90ff',
-    borderRadius: 25, // Rounded for larger ball
+    borderRadius: 25,
+    zIndex: 1,
   },
   letterT: {
-    fontSize: 100,
+    fontSize: 80,
     color: '#1e90ff',
     fontWeight: 'bold',
-    opacity: 100, // Initially hidden
+    lineHeight: 100,
   },
   additionalText: {
-    fontSize: 60,
-    color: '#000', // Black color for "iketKu"
+    fontSize: 80,
+    color: '#000',
     fontWeight: 'bold',
     marginLeft: 2,
-    transform: [{ scaleX: 0 }], // Initially hidden
+    lineHeight: 100,
   },
   subtitle: {
     position: 'absolute',
-    bottom: 280,
+    bottom: height * 0.4,
     fontSize: 16,
     color: '#666',
+    textAlign: 'center',
   },
 });
 

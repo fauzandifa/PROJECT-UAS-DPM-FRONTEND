@@ -11,8 +11,9 @@ import {
   ScrollView,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
-const API_BASE_URL = 'http://192.168.1.5:5000/api/auth';
+const API_BASE_URL = 'http://192.168.1.4:5000/api/auth';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ const RegisterScreen = ({ navigation }) => {
     password: "",
     nama: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -196,7 +198,11 @@ const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.inputContainer}>
         <Animated.Text
-          style={[styles.label, { transform: [{ translateY: usernameLabelPosition }] }, usernameFocused && styles.focusedLabel]}
+          style={[
+            styles.label, 
+            { transform: [{ translateY: usernameLabelPosition }] }, 
+            usernameFocused && styles.focusedLabel
+          ]}
         >
           Username
         </Animated.Text>
@@ -214,7 +220,11 @@ const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.inputContainer}>
         <Animated.Text
-          style={[styles.label, { transform: [{ translateY: fullnameLabelPosition }] }, fullnameFocused && styles.focusedLabel]}
+          style={[
+            styles.label, 
+            { transform: [{ translateY: fullnameLabelPosition }] }, 
+            fullnameFocused && styles.focusedLabel
+          ]}
         >
           Full Name
         </Animated.Text>
@@ -232,7 +242,11 @@ const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.inputContainer}>
         <Animated.Text
-          style={[styles.label, { transform: [{ translateY: emailLabelPosition }] }, emailFocused && styles.focusedLabel]}
+          style={[
+            styles.label, 
+            { transform: [{ translateY: emailLabelPosition }] }, 
+            emailFocused && styles.focusedLabel
+          ]}
         >
           Email
         </Animated.Text>
@@ -251,20 +265,36 @@ const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.inputContainer}>
         <Animated.Text
-          style={[styles.label, { transform: [{ translateY: passwordLabelPosition }] }, passwordFocused && styles.focusedLabel]}
+          style={[
+            styles.label, 
+            { transform: [{ translateY: passwordLabelPosition }] }, 
+            passwordFocused && styles.focusedLabel
+          ]}
         >
           Password
         </Animated.Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={formData.password}
-          onChangeText={(value) => handleInputChange('password', value)}
-          secureTextEntry={true}
-          placeholderTextColor="#999"
-          onFocus={() => handleFocus('password')}
-          onBlur={() => handleBlur('password')}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[styles.input, styles.passwordInput]}
+            placeholder="Password"
+            value={formData.password}
+            onChangeText={(value) => handleInputChange('password', value)}
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#999"
+            onFocus={() => handleFocus('password')}
+            onBlur={() => handleBlur('password')}
+          />
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color="#999"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity 
@@ -312,9 +342,13 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   inputContainer: {
-    marginBottom: 20, // Increased from 7 to 20
-    marginTop: 10,    // Increased from 7 to 10
+    marginBottom: 20,
+    marginTop: 10,
     position: 'relative',
+  },
+  passwordContainer: {
+    position: 'relative',
+    width: '100%',
   },
   label: {
     position: 'absolute',
@@ -337,12 +371,20 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     fontSize: 16,
   },
+  passwordInput: {
+    paddingRight: 45,
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+  },
   registerButton: {
     backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,    // Added marginTop
+    marginTop: 20,
     marginBottom: 10,
   },
   registerButtonDisabled: {

@@ -22,7 +22,7 @@ const ProfilePage = () => {
     // Fetch user data from backend
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://192.168.1.5:5000/api/auth"); // Replace with your API endpoint
+        const response = await fetch("http://192.168.1.4:5000/api/auth"); // Replace with your API endpoint
         const data = await response.json();
         setUserData(data);
       } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
   Animated,
   Modal,
+  Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-const API_BASE_URL = "http://192.168.1.5:5000/api/auth";
+const { height } = Dimensions.get('window');
+const API_BASE_URL = "http://192.168.1.4:5000/api/auth";
 
 const LoginScreen = ({ navigation }) => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -25,6 +27,42 @@ const LoginScreen = ({ navigation }) => {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailOrUsernameLabelPosition] = useState(new Animated.Value(0));
   const [passwordLabelPosition] = useState(new Animated.Value(0));
+
+  // Animation values
+  const [contentOpacity] = useState(new Animated.Value(0));
+  const [contentTranslateY] = useState(new Animated.Value(50));
+  const [titleScale] = useState(new Animated.Value(0.7));
+  const [titleTranslateY] = useState(new Animated.Value(-50));
+
+  useEffect(() => {
+    // Start entrance animations
+    Animated.parallel([
+      // Fade in and slide up content
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 800,
+        delay: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentTranslateY, {
+        toValue: 0,
+        duration: 800,
+        delay: 100,
+        useNativeDriver: true,
+      }),
+      // Title animations
+      Animated.timing(titleScale, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleTranslateY, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const handleLogin = async () => {
     if (!emailOrUsername || !password) {
@@ -54,21 +92,13 @@ const LoginScreen = ({ navigation }) => {
         return;
       }
   
-      // Log request details
-      console.log('Sending request to:', `${API_BASE_URL}/login`);
-      console.log('Request body:', {
-        login: emailOrUsername,
-        password,
-      });
-  
-      // Send credentials to the API
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: emailOrUsername,  // server mengharapkan field 'email'
+          email: emailOrUsername,
           password: password,
         }),
       });
@@ -77,19 +107,16 @@ const LoginScreen = ({ navigation }) => {
       const responseData = await response.json();
       console.log('Response data:', responseData);
   
-      // Check if response is OK (status 200)
       if (!response.ok) {
         throw new Error(responseData.message || "Failed to login. Please check your credentials.");
       }
   
       if (responseData.success) {
         console.log('Login successful, saving user data');
-        // Successful login
         await AsyncStorage.setItem("userToken", responseData.data.token);
         await AsyncStorage.setItem("userData", JSON.stringify(responseData.data.user));
         navigation.replace("Home");
       } else {
-        // Handle failed login
         console.log('Login failed:', responseData.message);
         Alert.alert("Login Failed", responseData.message || "Invalid credentials");
       }
@@ -162,96 +189,114 @@ const LoginScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      <Text style={styles.title}>TiketKu</Text>
-      <Text style={styles.subtitle}>Welcome back, you've been missed!</Text>
+      <Animated.View style={[
+        styles.titleContainer,
+        {
+          transform: [
+            { scale: titleScale },
+            { translateY: titleTranslateY }
+          ]
+        }
+      ]}>
+        <Text style={styles.titleT}>T</Text>
+        <Text style={styles.titleRest}>iketKu</Text>
+      </Animated.View>
 
-      <View style={styles.inputContainer}>
-        <Animated.Text
-          style={[
-            styles.label,
-            { transform: [{ translateY: emailOrUsernameLabelPosition }] },
-            emailOrUsernameFocused && styles.focusedLabel,
-          ]}
-        >
-          Email or Username
-        </Animated.Text>
-        <TextInput
-          style={styles.input}
-          value={emailOrUsername}
-          onChangeText={setEmailOrUsername}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
-          onBlur={() =>
-            handleBlur(setEmailOrUsernameFocused, emailOrUsername, emailOrUsernameLabelPosition)
-          }
-          placeholder="Email or Username"
-          placeholderTextColor="#999"
-        />
-      </View>
+      <Animated.View style={{
+        opacity: contentOpacity,
+        transform: [{ translateY: contentTranslateY }],
+        flex: 1,
+      }}>
+        <Text style={styles.subtitle}>Welcome back, you've been missed!</Text>
 
-      <View style={styles.passwordContainer}>
-        <Animated.Text
-          style={[
-            styles.label,
-            { transform: [{ translateY: passwordLabelPosition }] },
-            passwordFocused && styles.focusedLabel,
-          ]}
-        >
-          Password
-        </Animated.Text>
-        <TextInput
-          style={[styles.input, styles.passwordInput]}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          placeholderTextColor="#999"
-          onFocus={() => handleFocus(setPasswordFocused, passwordLabelPosition)}
-          onBlur={() =>
-            handleBlur(setPasswordFocused, password, passwordLabelPosition)
-          }
-        />
-        <TouchableOpacity
-          style={styles.iconContainer}
-          onPress={() => setShowPassword(!showPassword)}
-        >
-          <Ionicons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
-            size={24}
-            color="#999"
+        <View style={styles.inputContainer}>
+          <Animated.Text
+            style={[
+              styles.label,
+              { transform: [{ translateY: emailOrUsernameLabelPosition }] },
+              emailOrUsernameFocused && styles.focusedLabel,
+            ]}
+          >
+            Email or Username
+          </Animated.Text>
+          <TextInput
+            style={styles.input}
+            value={emailOrUsername}
+            onChangeText={setEmailOrUsername}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
+            onBlur={() =>
+              handleBlur(setEmailOrUsernameFocused, emailOrUsername, emailOrUsernameLabelPosition)
+            }
+            placeholder="Email or Username"
+            placeholderTextColor="#999"
           />
+        </View>
+
+        <View style={styles.passwordContainer}>
+          <Animated.Text
+            style={[
+              styles.label,
+              { transform: [{ translateY: passwordLabelPosition }] },
+              passwordFocused && styles.focusedLabel,
+            ]}
+          >
+            Password
+          </Animated.Text>
+          <TextInput
+            style={[styles.input, styles.passwordInput]}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#999"
+            onFocus={() => handleFocus(setPasswordFocused, passwordLabelPosition)}
+            onBlur={() =>
+              handleBlur(setPasswordFocused, password, passwordLabelPosition)
+            }
+          />
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color="#999"
+            />
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("ForgotPassword")}
+          style={styles.forgotPasswordContainer}
+        >
+          <Text style={styles.forgotPassword}>Forgot your password?</Text>
         </TouchableOpacity>
-      </View>
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate("ForgotPassword")}
-        style={styles.forgotPasswordContainer}
-      >
-        <Text style={styles.forgotPassword}>Forgot your password?</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Login</Text>
+          )}
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-        onPress={handleLogin}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Login</Text>
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Register")}
-        style={styles.registerContainer}
-      >
-        <Text style={styles.registerText}>
-          Don't have an account?{" "}
-          <Text style={styles.registerLink}>Register</Text>
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Register")}
+          style={styles.registerContainer}
+        >
+          <Text style={styles.registerText}>
+            Don't have an account?{" "}
+            <Text style={styles.registerLink}>Register</Text>
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };
@@ -263,12 +308,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
   },
-  title: {
-    fontSize: 32,
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 0,
+    marginTop: 200,
+    zIndex: 2,
+  },
+  titleT: {
+    fontSize: 70,
     fontWeight: "bold",
     color: "#1e90ff",
-    textAlign: "center",
-    marginBottom: 10,
+  },
+  titleRest: {
+    fontSize: 70,
+    fontWeight: "bold",
+    color: "#000",
   },
   subtitle: {
     fontSize: 16,
