@@ -51,7 +51,7 @@ const NowPlayingPage = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Now Playing Movies</Text>
-        <Text style={styles.greeting}>HEHEHEHE</Text>
+        <Text style={styles.greeting}>please enjoy</Text>
       </View>
       <TextInput
         style={{
