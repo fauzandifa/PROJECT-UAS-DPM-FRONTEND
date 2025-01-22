@@ -36,6 +36,6 @@ const bookingSchema = new mongoose.Schema({
         default: 'pending'
     },
     metodePembayaran: String
-}, { collection: 'booking' }); // Menentukan nama koleksi spesifik
+}, { collection: 'booking' }); 
 
 module.exports = mongoose.model('Booking', bookingSchema);

@@ -8,10 +8,11 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 
-const PaymentScreen = ({ navigation }) => {
+const PaymentScreen = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const { movieData } = route.params;
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -37,11 +38,46 @@ const PaymentScreen = ({ navigation }) => {
   ];
 
   const [seats, setSeats] = useState([
-    ["available", "available", "reserved", "reserved", "available", "available"],
-    ["available", "available", "reserved", "reserved", "available", "available"],
-    ["available", "available", "available", "selected", "available", "available"],
-    ["available", "reserved", "reserved", "reserved", "reserved", "available"],
-    ["available", "available", "available", "available", "available", "available"],
+    [
+      { id: 1, status: "available" },
+      { id: 2, status: "available" },
+      { id: 3, status: "reserved" },
+      { id: 4, status: "reserved" },
+      { id: 5, status: "available" },
+      { id: 6, status: "available" },
+    ],
+    [
+      { id: 7, status: "available" },
+      { id: 8, status: "available" },
+      { id: 9, status: "reserved" },
+      { id: 10, status: "reserved" },
+      { id: 11, status: "available" },
+      { id: 12, status: "available" },
+    ],
+    [
+      { id: 13, status: "available" },
+      { id: 14, status: "available" },
+      { id: 15, status: "available" },
+      { id: 16, status: "selected" },
+      { id: 17, status: "available" },
+      { id: 18, status: "available" },
+    ],
+    [
+      { id: 19, status: "available" },
+      { id: 20, status: "reserved" },
+      { id: 21, status: "reserved" },
+      { id: 22, status: "reserved" },
+      { id: 23, status: "reserved" },
+      { id: 24, status: "available" },
+    ],
+    [
+      { id: 25, status: "available" },
+      { id: 26, status: "available" },
+      { id: 27, status: "available" },
+      { id: 28, status: "available" },
+      { id: 29, status: "available" },
+      { id: 30, status: "available" },
+    ],
   ]);
 
   const handleSeatSelect = (rowIndex, colIndex) => {
@@ -49,12 +85,12 @@ const PaymentScreen = ({ navigation }) => {
       const updatedSeats = prevSeats.map((row, rIdx) =>
         row.map((seat, cIdx) => {
           if (rIdx === rowIndex && cIdx === colIndex) {
-            if (seat === "available") {
-              setSelectedSeats([...selectedSeats, { rowIndex, colIndex }]);
-              return "selected";
-            } else if (seat === "selected") {
-              setSelectedSeats(selectedSeats.filter(seat => seat.rowIndex !== rowIndex || seat.colIndex !== colIndex));
-              return "available";
+            if (seat.status === "available") {
+              setSelectedSeats([...selectedSeats, seat.id]);
+              return { ...seat, status: "selected" };
+            } else if (seat.status === "selected") {
+              setSelectedSeats(selectedSeats.filter((id) => id !== seat.id));
+              return { ...seat, status: "available" };
             }
           }
           return seat;
@@ -159,7 +195,7 @@ const PaymentScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.seatMap}>
-        <Text style={styles.seatTitle}>pilih bangku</Text>
+        <Text style={styles.seatTitle}>Screen This Way</Text>
         {/* Add seat selection grid here */}
         <View style={styles.seatGrid}>
           {seats.map((row, rowIndex) => (
@@ -169,14 +205,14 @@ const PaymentScreen = ({ navigation }) => {
                   key={colIndex}
                   style={[
                     styles.seat,
-                    seat === "reserved" && styles.reservedSeat,
-                    seat === "selected" && styles.selectedSeat,
+                    seat.status === "reserved" && styles.reservedSeat,
+                    seat.status === "selected" && styles.selectedSeat,
                   ]}
                   onPress={() => handleSeatSelect(rowIndex, colIndex)}
-                  disabled={seat === "reserved"}
+                  disabled={seat.status === "reserved"}
                 >
                   <Text style={styles.seatText}>
-                    {seat === "selected" ? "✔" : ""}
+                    {seat.status === "selected" ? "✔" : ""}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -422,6 +458,10 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginTop: 20,
+  },
+  returnButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
   backButton: {
     fontSize: 24,
