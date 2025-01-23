@@ -13,12 +13,13 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import { API_ENDPOINTS } from '../config/api';
+import axios from "axios";
 
 const { height } = Dimensions.get('window');
-const API_BASE_URL = "http://192.168.1.4:5000/api/auth";
 
 const LoginScreen = ({ navigation }) => {
-  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,17 +66,17 @@ const LoginScreen = ({ navigation }) => {
   }, []);
 
   const handleLogin = async () => {
-    if (!emailOrUsername || !password) {
+    if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
   
     try {
       setLoading(true);
-      console.log('Attempting login with:', { emailOrUsername, password });
+      console.log('Attempting login with:', { email, password });
   
       // Mock Admin check
-      if (emailOrUsername === "admin@tiketku.com" && password === "dpmkel7") {
+      if (email === "admin@tiketku.com" && password === "dpmkel7") {
         console.log('Admin login detected');
         const adminData = {
           id: "admin",
@@ -92,42 +93,32 @@ const LoginScreen = ({ navigation }) => {
         return;
       }
   
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: emailOrUsername,
-          password: password,
-        }),
+      const response = await axios.post(API_ENDPOINTS.login, {
+        email: email,
+        password: password,
       });
   
-      console.log('Response status:', response.status);
-      const responseData = await response.json();
-      console.log('Response data:', responseData);
+      console.log('Response:', response.data); // Log full response
   
-      if (!response.ok) {
-        throw new Error(responseData.message || "Failed to login. Please check your credentials.");
-      }
-  
-      if (responseData.success) {
+      if (response.data.success) {
         console.log('Login successful, saving user data');
-        await AsyncStorage.setItem("userToken", responseData.data.token);
-        await AsyncStorage.setItem("userData", JSON.stringify(responseData.data.user));
+        await AsyncStorage.setItem("userToken", response.data.data.token);
+        await AsyncStorage.setItem("userData", JSON.stringify(response.data.data.user));
         navigation.replace("Home");
       } else {
-        console.log('Login failed:', responseData.message);
-        Alert.alert("Login Failed", responseData.message || "Invalid credentials");
+        console.log('Login failed:', response.data.message);
+        Alert.alert("Login Failed", response.data.message || "Invalid credentials");
       }
     } catch (error) {
       console.error("Login error details:", {
         message: error.message,
-        stack: error.stack
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
       });
       Alert.alert(
         "Error",
-        error.message || "Unable to connect to server. Please check your internet connection."
+        error.response?.data?.message || error.message || "Unable to connect to server"
       );
     } finally {
       setLoading(false);
@@ -217,19 +208,19 @@ const LoginScreen = ({ navigation }) => {
               emailOrUsernameFocused && styles.focusedLabel,
             ]}
           >
-            Email or Username
+            Email
           </Animated.Text>
           <TextInput
             style={styles.input}
-            value={emailOrUsername}
-            onChangeText={setEmailOrUsername}
+            value={email}
+            onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
             onBlur={() =>
-              handleBlur(setEmailOrUsernameFocused, emailOrUsername, emailOrUsernameLabelPosition)
+              handleBlur(setEmailOrUsernameFocused, email, emailOrUsernameLabelPosition)
             }
-            placeholder="Email or Username"
+            placeholder="Enter your email"
             placeholderTextColor="#999"
           />
         </View>

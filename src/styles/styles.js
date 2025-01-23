@@ -139,8 +139,19 @@ const styles = StyleSheet.create({
     color: "#000", // Ensure user name text color is white for consistency
   },
   userTagline: {
-    fontSize: 14,
-    color: "#fff", // Ensure user tagline text color is white for consistency
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  userInfo: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  usernameText: {
+    color: '#1e90ff',
+    fontWeight: 'bold',
   },
   menuSection: {
     marginVertical: 10,

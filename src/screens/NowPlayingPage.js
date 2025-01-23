@@ -10,6 +10,7 @@ import { fetchMovies, searchMovies } from "../api/TMDBApi";
 import MovieList from "../components/MovieList";
 import Navbar from "../components/Navbar";
 import styles from "../styles/styles";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NowPlayingPage = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -18,6 +19,23 @@ const NowPlayingPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("NowPlaying");
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const userDataString = await AsyncStorage.getItem("userData");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setUserData(userData);
+        }
+      } catch (error) {
+        console.error("Error getting user data:", error);
+      }
+    };
+
+    getUserData();
+  }, []);
 
   useEffect(() => {
     const loadMovies = async () => {
@@ -55,7 +73,9 @@ const NowPlayingPage = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Welcome to the apps</Text>
+        <Text style={styles.headerText}>
+          Welcome {userData?.nama || 'to the apps'}!
+        </Text>
         <Text style={styles.headersubText}>
           What movie do you want to order?
         </Text>

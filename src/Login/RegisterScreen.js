@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
-
-const API_BASE_URL = 'http://192.168.1.4:5000/api/auth';
+import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -153,15 +153,9 @@ const RegisterScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axios.post(API_ENDPOINTS.register, formData);
 
-      const data = await response.json();
+      const data = await response.data;
 
       if (data.success) {
         await AsyncStorage.setItem('userToken', data.data.token);
@@ -181,10 +175,15 @@ const RegisterScreen = ({ navigation }) => {
         Alert.alert("Registration Failed", data.message || "Please try again");
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
+      });
       Alert.alert(
         "Error",
-        "Unable to connect to server. Please check your internet connection."
+        error.response?.data?.message || error.message || "Unable to connect to server"
       );
     } finally {
       setLoading(false);

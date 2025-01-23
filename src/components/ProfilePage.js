@@ -10,6 +10,10 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "../styles/styles";
+import { API_ENDPOINTS } from '../config/api';
+import api from '../config/api';  // Import instance axios yang sudah dikonfigurasi
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null); // State to hold user data
@@ -20,11 +24,45 @@ const ProfilePage = () => {
     // Fetch user data from backend
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://192.168.1.4:5000/api/auth"); // Replace with your API endpoint
-        const data = await response.json();
-        setUserData(data);
+        const userDataString = await AsyncStorage.getItem("userData");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setUserData(userData);
+        }
+
+        const token = await AsyncStorage.getItem("userToken");
+        console.log('Token:', token); // Debug log
+        
+        if (token === 'admin-token') {
+          return;
+        }
+        
+        if (token) {
+          try {
+            console.log('Making request to:', API_ENDPOINTS.profile);
+            const response = await axios.get(API_ENDPOINTS.profile, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            console.log('Response:', response.data);
+
+            if (response.data.success) {
+              setUserData(response.data.data);
+              await AsyncStorage.setItem("userData", JSON.stringify(response.data.data));
+            }
+          } catch (apiError) {
+            console.error("API Error details:", {
+              message: apiError.message,
+              status: apiError.response?.status,
+              data: apiError.response?.data,
+              url: apiError.config?.url
+            });
+          }
+        }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error in fetchUserData:", error);
       }
     };
 
@@ -52,7 +90,7 @@ const ProfilePage = () => {
           {userData?.email || "Loading..."}
         </Text>
         <Text style={styles.userInfo}>
-          Username: {userData?.username || "Loading..."}
+          Username: <Text style={styles.usernameText}>{userData?.username || "Loading..."}</Text>
         </Text>
       </View>
 
