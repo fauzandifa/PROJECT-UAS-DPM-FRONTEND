@@ -8,7 +8,6 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 const ChatAdmin = () => {
@@ -16,7 +15,7 @@ const ChatAdmin = () => {
   const [messages, setMessages] = useState([
     {
       sender: "admin",
-      text: "Halo, bagaimana saya bisa membantu Anda?",
+      text: "Halo, bagaimana saya bisa membantu Anda?\nKetik 1 untuk tutorial pemesanan tiket.\nKetik 2 untuk nomor kontak kami.",
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -24,7 +23,6 @@ const ChatAdmin = () => {
       }),
     },
   ]);
-  const navigation = useNavigation();
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -33,32 +31,27 @@ const ChatAdmin = () => {
         minute: "2-digit",
         hour12: true,
       });
+
+      // Tambahkan pesan pengguna ke dalam array messages
       setMessages([
         ...messages,
         { sender: "user", text: message, time: currentTime },
       ]);
+      const userMessage = message.trim();
       setMessage("");
 
+      // Jawaban admin berdasarkan input pengguna
       setTimeout(() => {
-        const userMessage = message.toLowerCase();
         let adminResponse = "";
-
-        if (
-          userMessage.includes("bantuan") ||
-          userMessage.includes("masalah")
-        ) {
+        if (userMessage === "1") {
           adminResponse =
-            "Terima kasih telah menghubungi kami! Kami akan segera membantu Anda menyelesaikan masalah.";
-        } else if (userMessage.includes("pertanyaan")) {
-          adminResponse = "Silakan ajukan pertanyaan Anda, kami siap membantu!";
+            "Berikut adalah tutorial pemesanan tiket:\n1. Pilih film yang diinginkan.\n2. Pilih tanggal, waktu, dan tempat duduk.\n3. Masukkan informasi pembayaran.\n4. Klik 'Bayar' dan tiket akan dikonfirmasi.";
+        } else if (userMessage === "2") {
+          adminResponse =
+            "Anda dapat menghubungi kami di nomor berikut:\n081372215553";
         } else {
           adminResponse =
-            "ini merupakan cara memesan tiket di platform kami:\n" +
-            "1. pesan tiket film yang anda inginkan;\n" +
-            "2. pilih tanggal, bangku, dan waktu yang tertera;\n" +
-            "3. masukkan nomor bank anda;\n" +
-            "4. klik tombol bayar;\n" +
-            "5. anda berhasil memesan tiket di bioskop kami.";
+            "Maaf, saya tidak memahami pesan Anda. Ketik 1 untuk tutorial pemesanan tiket atau 2 untuk nomor kontak kami.";
         }
 
         const responseTime = new Date().toLocaleTimeString([], {
@@ -66,13 +59,12 @@ const ChatAdmin = () => {
           minute: "2-digit",
           hour12: true,
         });
-        const response = {
-          sender: "admin",
-          text: adminResponse,
-          time: responseTime,
-        };
-        setMessages((prevMessages) => [...prevMessages, response]);
-      }, 2000);
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "admin", text: adminResponse, time: responseTime },
+        ]);
+      }, 2000); // Simulasi waktu respons admin
     }
   };
 
@@ -104,14 +96,6 @@ const ChatAdmin = () => {
               <Text style={styles.messageText}>{msg.text}</Text>
               <Text style={styles.messageTime}>{msg.time}</Text>
             </View>
-            {msg.sender === "user" && (
-              <Image
-                source={{
-                  uri: "https://i.pinimg.com/736x/a0/c4/ee/a0c4ee77b193a26a994f7bec5f8fcdb0.jpg",
-                }}
-                style={styles.avatar}
-              />
-            )}
           </View>
         ))}
       </ScrollView>
@@ -121,7 +105,7 @@ const ChatAdmin = () => {
           style={styles.input}
           value={message}
           onChangeText={setMessage}
-          placeholder="Write something..."
+          placeholder="Tulis pesan..."
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Ionicons name="send" size={24} color="white" />
@@ -156,7 +140,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 15,
     maxWidth: "75%",
-    color: "#ffff",
   },
   adminMessage: {
     backgroundColor: "#494d4a",
@@ -170,7 +153,7 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: 12,
-    color: "#fff", // Ubah warna jam menjadi putih
+    color: "#fff",
     alignSelf: "flex-end",
     marginTop: 5,
   },
@@ -200,13 +183,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     backgroundColor: "#007BFF",
-    borderRadius: 50, // Membuat tombol bulat
+    borderRadius: 50,
     width: 50,
     height: 50,
-  },
-  sendIcon: {
-    width: 24,
-    height: 24,
   },
 });
 

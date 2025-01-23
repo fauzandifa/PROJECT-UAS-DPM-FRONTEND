@@ -26,7 +26,12 @@ const NowPlayingPage = () => {
         const popular = await fetchMovies("/movie/popular");
         const nowPlaying = await fetchMovies("/movie/now_playing");
 
-        setPopularMovies(popular);
+        // Sort popular movies by rating in descending order
+        const sortedPopular = popular.sort(
+          (a, b) => b.vote_average - a.vote_average
+        );
+
+        setPopularMovies(sortedPopular);
         setNowPlayingMovies(nowPlaying);
       } catch (error) {
         console.error("Error fetching movies:", error);
