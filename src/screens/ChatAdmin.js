@@ -91,7 +91,7 @@ const ChatAdmin = () => {
             {msg.sender === "admin" && (
               <Image
                 source={{
-                  uri: "https://i.pinimg.com/736x/2b/10/ca/2b10cafe7d3cc637bd72a0149ba200f5.jpg",
+                  uri: "https://i.pinimg.com/736x/2e/84/73/2e84730aec76756e7812bafbba7f18fc.jpg",
                 }}
                 style={styles.avatar}
               />
@@ -107,7 +107,7 @@ const ChatAdmin = () => {
             {msg.sender === "user" && (
               <Image
                 source={{
-                  uri: "https://i.pinimg.com/736x/2b/10/ca/2b10cafe7d3cc637bd72a0149ba200f5.jpg",
+                  uri: "https://i.pinimg.com/736x/a0/c4/ee/a0c4ee77b193a26a994f7bec5f8fcdb0.jpg",
                 }}
                 style={styles.avatar}
               />
