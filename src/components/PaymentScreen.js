@@ -25,10 +25,22 @@ const PaymentScreen = () => {
   });
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  const dates = Array.from({ length: 30 }, (_, i) => ({
-    day: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][(i + 4) % 7],
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+
+  const dates = Array.from({ length: daysInMonth }, (_, i) => ({
+    day: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+      (firstDayOfMonth + i) % 7
+    ],
     date: i + 1,
   }));
+
+  // Add empty elements to align the first day of the month correctly
+  const calendarDays = Array(firstDayOfMonth).fill(null).concat(dates);
 
   const times = [
     { time: "13:00", price: 5.28 },
@@ -156,14 +168,15 @@ const PaymentScreen = () => {
 
         {/* Grid Tanggal */}
         <View style={styles.calendarBody}>
-          {dates.map((date, index) => (
+          {calendarDays.map((date, index) => (
             <TouchableOpacity
               key={index}
               style={[
                 styles.calendarDay,
                 selectedDate === index && styles.selectedCalendarDay,
               ]}
-              onPress={() => setSelectedDate(index)}
+              onPress={() => date && setSelectedDate(index)}
+              disabled={!date}
             >
               <Text
                 style={[
@@ -171,7 +184,7 @@ const PaymentScreen = () => {
                   selectedDate === index && styles.selectedCalendarDayText,
                 ]}
               >
-                {date.date}
+                {date ? date.date : ""}
               </Text>
             </TouchableOpacity>
           ))}

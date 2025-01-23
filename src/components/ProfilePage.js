@@ -7,15 +7,13 @@ import {
   Modal,
   StyleSheet,
 } from "react-native";
-import MenuItem from "./MenuItem";
-import styles from "../styles/styles";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import styles from "../styles/styles";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null); // State to hold user data
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isSettingsModalVisible, setSettingsModalVisible] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -41,9 +39,6 @@ const ProfilePage = () => {
   const openLogoutConfirmation = () => setModalVisible(true);
   const closeLogoutConfirmation = () => setModalVisible(false);
 
-  const openSettingsModal = () => setSettingsModalVisible(true);
-  const closeSettingsModal = () => setSettingsModalVisible(false);
-
   return (
     <ScrollView style={styles.profileContainer}>
       <View style={styles.profileHeader}>
@@ -53,13 +48,15 @@ const ProfilePage = () => {
           </Text>
         </View>
         <Text style={styles.userName}>{userData?.nama || "Loading..."}</Text>
-        <Text style={styles.userTagline}>{userData?.email || "Loading..."}</Text>
-        <Text style={styles.userInfo}>Username: {userData?.username || "Loading..."}</Text>
+        <Text style={styles.userTagline}>
+          {userData?.email || "Loading..."}
+        </Text>
+        <Text style={styles.userInfo}>
+          Username: {userData?.username || "Loading..."}
+        </Text>
       </View>
 
       <View style={styles.menuSection}>
-        <MenuItem icon="person-outline" title="Info Pribadi" />
-        <MenuItem icon="notifications-outline" title="Notifikasi" />
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => navigation.navigate("HistoryScreen")}
@@ -73,10 +70,6 @@ const ProfilePage = () => {
         >
           <Ionicons name="help-circle-outline" size={24} color="#000" />
           <Text style={styles.menuItemText}> Hubungi Admin</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={openSettingsModal}>
-          <Ionicons name="settings-outline" size={24} color="#000" />
-          <Text style={styles.menuItemText}> Pengaturan</Text>
         </TouchableOpacity>
       </View>
 
@@ -117,54 +110,11 @@ const ProfilePage = () => {
           </View>
         </View>
       </Modal>
-
-      {/* Settings Modal */}
-      <Modal
-        visible={isSettingsModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={closeSettingsModal}
-      >
-        <View style={modalStyles.modalOverlay}>
-          <View style={modalStyles.modalContent}>
-            <Text style={modalStyles.modalTitle}>Pengaturan</Text>
-            <View style={modalStyles.settingsOptions}>
-              <TouchableOpacity
-                style={modalStyles.optionButton}
-                onPress={() => navigation.navigate("ChangePasswordScreen")}
-              >
-                <Text style={modalStyles.optionText}>Ubah Kata Sandi</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={modalStyles.optionButton}
-                onPress={() => console.log("Change Notifications Preferences")}
-              >
-                <Text style={modalStyles.optionText}>
-                  Preferensi Notifikasi
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={modalStyles.optionButton}
-                onPress={() => console.log("Theme Settings")}
-              >
-                <Text style={modalStyles.optionText}>Tema Aplikasi</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={modalStyles.closeButton}
-              onPress={closeSettingsModal}
-            >
-              <Text style={modalStyles.closeButtonText}>Tutup</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ScrollView>
   );
 };
 
 export default ProfilePage;
-
 
 // Gaya untuk modal
 const modalStyles = StyleSheet.create({
@@ -217,31 +167,6 @@ const modalStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   yesButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  // Styling for settings modal
-  settingsOptions: {
-    marginVertical: 20,
-  },
-  optionButton: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-    width: "100%",
-    alignItems: "center",
-  },
-  optionText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  closeButton: {
-    marginTop: 20,
-    backgroundColor: "#FF6347",
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
     color: "white",
     fontWeight: "bold",
   },

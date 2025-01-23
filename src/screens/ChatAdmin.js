@@ -17,16 +17,25 @@ const ChatAdmin = () => {
     {
       sender: "admin",
       text: "Halo, bagaimana saya bisa membantu Anda?",
-      time: "8:10 PM",
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
     },
   ]);
   const navigation = useNavigation();
 
   const handleSendMessage = () => {
     if (message.trim()) {
+      const currentTime = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
       setMessages([
         ...messages,
-        { sender: "user", text: message, time: "8:12 PM" },
+        { sender: "user", text: message, time: currentTime },
       ]);
       setMessage("");
 
@@ -44,13 +53,23 @@ const ChatAdmin = () => {
           adminResponse = "Silakan ajukan pertanyaan Anda, kami siap membantu!";
         } else {
           adminResponse =
-            "Terima kasih telah menghubungi kami. Ada yang bisa saya bantu?";
+            "ini merupakan cara memesan tiket di platform kami:\n" +
+            "1. pesan tiket film yang anda inginkan;\n" +
+            "2. pilih tanggal, bangku, dan waktu yang tertera;\n" +
+            "3. masukkan nomor bank anda;\n" +
+            "4. klik tombol bayar;\n" +
+            "5. anda berhasil memesan tiket di bioskop kami.";
         }
 
+        const responseTime = new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
         const response = {
           sender: "admin",
           text: adminResponse,
-          time: "8:13 PM",
+          time: responseTime,
         };
         setMessages((prevMessages) => [...prevMessages, response]);
       }, 2000);
