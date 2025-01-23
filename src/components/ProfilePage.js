@@ -62,14 +62,14 @@ const ProfilePage = () => {
           onPress={() => navigation.navigate("HistoryScreen")}
         >
           <Ionicons name="card-outline" size={24} color="#000" />
-          <Text style={styles.menuItemText}> History Pembayaran</Text>
+          <Text style={styles.menuItemText}> payment history</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => navigation.navigate("ChatAdmin")}
         >
           <Ionicons name="help-circle-outline" size={24} color="#000" />
-          <Text style={styles.menuItemText}> Hubungi Admin</Text>
+          <Text style={styles.menuItemText}> contact admin</Text>
         </TouchableOpacity>
       </View>
 
@@ -89,22 +89,22 @@ const ProfilePage = () => {
       >
         <View style={modalStyles.modalOverlay}>
           <View style={modalStyles.modalContent}>
-            <Text style={modalStyles.modalTitle}>Konfirmasi Logout</Text>
+            <Text style={modalStyles.modalTitle}>Confirm Log Out</Text>
             <Text style={modalStyles.modalMessage}>
-              Apakah Anda yakin ingin keluar?
+              do you really want to log out?
             </Text>
             <View style={modalStyles.buttonContainer}>
               <TouchableOpacity
                 style={modalStyles.noButton}
                 onPress={closeLogoutConfirmation}
               >
-                <Text style={modalStyles.noButtonText}>Tidak</Text>
+                <Text style={modalStyles.noButtonText}>cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={modalStyles.yesButton}
                 onPress={handleLogout}
               >
-                <Text style={modalStyles.yesButtonText}>Ya</Text>
+                <Text style={modalStyles.yesButtonText}>Yes</Text>
               </TouchableOpacity>
             </View>
           </View>

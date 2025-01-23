@@ -9,11 +9,15 @@ import {
   TextInput,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 const PaymentScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { movieData } = route.params;
+
+  console.log(movieData); // Log movieData to check its contents
+
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -70,7 +74,7 @@ const PaymentScreen = () => {
       { id: 13, status: "available" },
       { id: 14, status: "available" },
       { id: 15, status: "available" },
-      { id: 16, status: "selected" },
+      { id: 16, status: "available" },
       { id: 17, status: "available" },
       { id: 18, status: "available" },
     ],
@@ -130,13 +134,7 @@ const PaymentScreen = () => {
       />
       <Text style={styles.title}>{movieData.title}</Text>
       <Text style={styles.duration}>152 minutes • 7.0 (IMDb)</Text>
-
-      <View style={styles.genreContainer}>
-        <Text style={styles.genre}>{movieData.rating}</Text>
-      </View>
-
       <Text style={styles.synopsis}>{movieData.overview}</Text>
-
       <TouchableOpacity
         style={styles.buyButton}
         onPress={() => setCurrentStep(1)}
@@ -147,10 +145,10 @@ const PaymentScreen = () => {
   );
 
   const renderTimeDate = () => (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={() => setCurrentStep(0)}>
-        <Text style={styles.backButton}>{"<"}</Text>
-      </TouchableOpacity>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <Text style={styles.title}>{movieData.title}</Text>
 
       {/* Kalender */}
@@ -201,8 +199,22 @@ const PaymentScreen = () => {
             ]}
             onPress={() => setSelectedTime(index)}
           >
-            <Text style={styles.timeText}>{item.time}</Text>
-            <Text style={styles.priceText}>{item.price}</Text>
+            <Text
+              style={[
+                styles.timeText,
+                selectedTime === index && styles.selectedTimeText,
+              ]}
+            >
+              {item.time}
+            </Text>
+            <Text
+              style={[
+                styles.priceText,
+                selectedTime === index && styles.selectedTimeText,
+              ]}
+            >
+              {item.price}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -249,10 +261,10 @@ const PaymentScreen = () => {
   );
 
   const renderPayment = () => (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => setCurrentStep(1)}>
-        <Text style={styles.backButton}>{"<"}</Text>
-      </TouchableOpacity>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <Text style={styles.paymentTitle}>Payment</Text>
       <TextInput
         style={styles.input}
@@ -273,26 +285,6 @@ const PaymentScreen = () => {
         }
       />
 
-      <View style={styles.cardRow}>
-        <TextInput
-          style={[styles.input, styles.halfInput]}
-          placeholder="Expiring date"
-          value={paymentDetails.expiryDate}
-          onChangeText={(text) =>
-            setPaymentDetails({ ...paymentDetails, expiryDate: text })
-          }
-        />
-        <TextInput
-          style={[styles.input, styles.halfInput]}
-          placeholder="CVV"
-          keyboardType="numeric"
-          value={paymentDetails.cvv}
-          onChangeText={(text) =>
-            setPaymentDetails({ ...paymentDetails, cvv: text })
-          }
-        />
-      </View>
-
       <View style={styles.totalContainer}>
         <Text style={styles.totalLabel}>Sub-total</Text>
         <Text style={styles.totalAmount}>${calculateTotalPrice()}</Text>
@@ -309,15 +301,19 @@ const PaymentScreen = () => {
       >
         <Text style={styles.payButtonText}>Pay</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 
   const renderSuccess = () => (
     <View style={styles.successContainer}>
       <Text style={styles.successTitle}>Successful</Text>
-      <View style={styles.successIcon}>
+      <View style={[styles.successIcon, { backgroundColor: "#1e90ff" }]}>
         <Text style={styles.checkmark}>✓</Text>
       </View>
+      <Text style={styles.successText}>
+        Your ticket has been booked for {dates[selectedDate]?.day},{" "}
+        {dates[selectedDate]?.date} at {times[selectedTime]?.time}
+      </Text>
       <TouchableOpacity
         style={styles.returnButton}
         onPress={() => navigation.navigate("Home")}
@@ -342,7 +338,17 @@ const PaymentScreen = () => {
     }
   };
 
-  return <View style={styles.mainContainer}>{renderContent()}</View>;
+  return (
+    <View style={styles.mainContainer}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => setCurrentStep(0)}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>payment</Text>
+      </View>
+      {renderContent()}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -351,7 +357,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
+    flex: 1,
     padding: 20,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1e90ff",
+    padding: 15,
+    paddingTop: 50,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginLeft: 20,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   movieImage: {
     width: "100%",
@@ -377,7 +400,7 @@ const styles = StyleSheet.create({
   buyButton: {
     backgroundColor: "#1e90ff",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: "center",
     marginTop: 20,
   },
@@ -385,105 +408,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  calendarContainer: {
-    paddingVertical: 10,
-  },
-  dateItem: {
-    flex: 1,
-    margin: 5,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  selectedDate: {
-    backgroundColor: "#1e90ff",
-  },
-  timeList: {
-    marginVertical: 20,
-  },
-  timeItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
-  },
-  selectedTime: {
-    backgroundColor: "#1e90ff",
-  },
-  selectedTimeText: {
-    color: "#fff",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-  },
-  cardRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  halfInput: {
-    width: "48%",
-  },
-  totalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 10,
-  },
-  payButton: {
-    backgroundColor: "#1e90ff",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-    color: "#fff",
-  },
-  successContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  successIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#4CAF50",
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  checkmark: {
-    color: "#fff",
-    fontSize: 50,
-  },
-  returnButton: {
-    backgroundColor: "#666",
-    padding: 15,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  returnButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  backButton: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  dateScrollContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 10,
-    alignItems: "center",
   },
   calendarContainer: {
     marginVertical: 20,
@@ -571,6 +495,113 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  payButton: {
+    backgroundColor: "#1e90ff",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+    color: "#fff",
+  },
+  payButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  continueButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  successContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  successIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#4CAF50",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  checkmark: {
+    color: "#fff",
+    fontSize: 50,
+  },
+  successText: {
+    fontSize: 18,
+    textAlign: "center",
+    marginVertical: 10,
+    fontWeight: "bold",
+  },
+  returnButton: {
+    backgroundColor: "#1e90ff",
+    padding: 15,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  returnButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  backButton: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  dateScrollContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    alignItems: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  halfInput: {
+    width: "48%",
+  },
+  totalContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+  },
+  timeList: {
+    marginVertical: 20,
+    color: "#000",
+  },
+  timeItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
+  },
+  selectedTime: {
+    backgroundColor: "#1e90ff",
+  },
+  selectedTimeText: {
+    color: "#fff",
+  },
+  timeText: {
+    color: "#000",
+  },
+  priceText: {
+    color: "#000",
+  },
+  successTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
 });
 
 export default PaymentScreen;

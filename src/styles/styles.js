@@ -5,14 +5,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    padding: 16,
-    paddingBottom: 0,
   },
   greeting: {
     paddingTop: 25,
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#fff", // Ensure greeting text color is white for consistency
   },
   subGreeting: {
     fontSize: 16,
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
   listHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "start",
     marginBottom: 8,
   },
   header: {
@@ -111,12 +110,14 @@ const styles = StyleSheet.create({
   // Profile Page Styles
   profileContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffff",
   },
   profileHeader: {
     alignItems: "center",
     paddingVertical: 30,
     marginBottom: 10,
+    backgroundColor: "#ffff", // Ensure header background color is blue for consistency
+    width: "100%",
   },
   avatar: {
     width: 80,
@@ -135,11 +136,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000", // Ensure user name text color is white for consistency
   },
   userTagline: {
     fontSize: 14,
-    color: "#888",
+    color: "#fff", // Ensure user tagline text color is white for consistency
   },
   menuSection: {
     marginVertical: 10,
@@ -176,6 +177,43 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontSize: 16,
     color: "#333",
+  },
+
+  // Header Styles
+  header: {
+    width: "100%",
+    backgroundColor: "#1e90ff", // Ensure header background color is blue
+    padding: 20,
+    paddingTop: 50,
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff", // Ensure header text color is white
+  },
+  headersubText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#fff", // Ensure header text color is white
+  },
+  // Search Input Styles
+  searchInput: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: "#333",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    margin: 20,
   },
 });
 

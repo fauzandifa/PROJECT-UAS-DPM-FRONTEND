@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: 12,
-    color: "#888",
+    color: "#fff", // Ubah warna jam menjadi putih
     alignSelf: "flex-end",
     marginTop: 5,
   },
@@ -204,7 +204,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
-
   sendIcon: {
     width: 24,
     height: 24,

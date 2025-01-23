@@ -50,25 +50,13 @@ const NowPlayingPage = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Now Playing Movies</Text>
-        <Text style={styles.greeting}>please enjoy</Text>
+        <Text style={styles.headerText}>Welcome to the apps</Text>
+        <Text style={styles.headersubText}>
+          What movie do you want to order?
+        </Text>
       </View>
       <TextInput
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 8,
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          fontSize: 16,
-          color: "#333",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-          borderWidth: 1,
-          borderColor: "#ddd",
-        }}
+        style={styles.searchInput}
         placeholder="Search films"
         placeholderTextColor="#aaa"
         value={searchQuery}
@@ -79,7 +67,7 @@ const NowPlayingPage = () => {
           <ActivityIndicator
             size="large"
             color="#00ff00"
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 80 }}
           />
         ) : searchResults.length > 0 ? (
           <MovieList title="Search Results" movies={searchResults} />
