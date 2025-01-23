@@ -14,12 +14,12 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { API_ENDPOINTS } from '../config/api';
-import axios from "axios";
+import axiosInstance from '../config/api';
 
 const { height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,60 +66,75 @@ const LoginScreen = ({ navigation }) => {
   }, []);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
-  
     try {
-      setLoading(true);
-      console.log('Attempting login with:', { email, password });
-  
-      // Mock Admin check
-      if (email === "admin@tiketku.com" && password === "dpmkel7") {
-        console.log('Admin login detected');
-        const adminData = {
-          id: "admin",
-          email: "admin@tiketku.com",
-          username: "admin",
-          nama: "Administrator",
-        };
-  
-        await AsyncStorage.setItem("userToken", "admin-token");
-        await AsyncStorage.setItem("userData", JSON.stringify(adminData));
-  
-        setModalVisible(true);
-        setLoading(false);
+      if (!username || !password) {
+        Alert.alert('Error', 'Username dan password harus diisi');
         return;
       }
-  
-      const response = await axios.post(API_ENDPOINTS.login, {
-        email: email,
-        password: password,
+
+      // Admin login check
+      if (username === 'admin@tiketku.com' && password === 'dpmkel7') {
+        await AsyncStorage.setItem('userData', JSON.stringify({
+          nama: "Administrator",
+          email: "admin@tiketku.com",
+          role: "admin"
+        }));
+        await AsyncStorage.setItem('isAdmin', 'true');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'NowPlaying' }],
+        });
+        return;
+      }
+
+      setLoading(true);
+      console.log('Making login request to:', API_ENDPOINTS.login);
+      console.log('With credentials:', { email: username, password: '***' });
+
+      const response = await axiosInstance.post(API_ENDPOINTS.login, {
+        email: username,
+        password: password
       });
-  
-      console.log('Response:', response.data); // Log full response
-  
+
+      console.log('Login response:', response.data);
+
       if (response.data.success) {
-        console.log('Login successful, saving user data');
-        await AsyncStorage.setItem("userToken", response.data.data.token);
-        await AsyncStorage.setItem("userData", JSON.stringify(response.data.data.user));
-        navigation.replace("Home");
+        const userData = response.data.data;
+        
+        if (!userData || !userData.token || !userData.user) {
+          throw new Error('Invalid response format');
+        }
+
+        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        await AsyncStorage.setItem('token', userData.token);
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'NowPlaying' }],
+        });
       } else {
-        console.log('Login failed:', response.data.message);
-        Alert.alert("Login Failed", response.data.message || "Invalid credentials");
+        throw new Error(response.data.message || 'Login failed');
       }
     } catch (error) {
-      console.error("Login error details:", {
+      console.error('Login error full details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        url: error.config?.url
+        url: error.config?.url,
+        method: error.config?.method,
+        data: error.config?.data
       });
-      Alert.alert(
-        "Error",
-        error.response?.data?.message || error.message || "Unable to connect to server"
-      );
+
+      let errorMessage = 'Login gagal. ';
+      if (error.message === 'Network Error') {
+        errorMessage += 'Tidak dapat terhubung ke server. Periksa koneksi Anda dan pastikan server berjalan.';
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += 'Silakan coba lagi.';
+      }
+
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -170,7 +185,7 @@ const LoginScreen = ({ navigation }) => {
                 style={[styles.modalButton, { backgroundColor: "#007AFF" }]}
                 onPress={() => {
                   setModalVisible(false);
-                  navigation.replace("Home");
+                  navigation.replace("NowPlaying");
                 }}
               >
                 <Text style={styles.modalButtonText}>FRONTEND</Text>
@@ -212,13 +227,13 @@ const LoginScreen = ({ navigation }) => {
           </Animated.Text>
           <TextInput
             style={styles.input}
-            value={email}
-            onChangeText={setEmail}
+            value={username}
+            onChangeText={setUsername}
             keyboardType="email-address"
             autoCapitalize="none"
             onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
             onBlur={() =>
-              handleBlur(setEmailOrUsernameFocused, email, emailOrUsernameLabelPosition)
+              handleBlur(setEmailOrUsernameFocused, username, emailOrUsernameLabelPosition)
             }
             placeholder="Enter your email"
             placeholderTextColor="#999"

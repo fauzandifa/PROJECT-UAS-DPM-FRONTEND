@@ -1,40 +1,44 @@
 import React from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import MovieItem from './MovieItem';
+import { useNavigation } from '@react-navigation/native';
 
-const MovieList = ({ title, movies }) => (
-  <View style={styles.movieListContainer}>
-    <View style={styles.listHeaderContainer}>
-      <Text style={styles.header}>{title}</Text>
-      <Text style={styles.seeAll}>See All</Text>
+const MovieList = ({ title, movies, navigateTo }) => {
+  const navigation = useNavigation();
+
+  const handleMoviePress = (movie) => {
+    navigation.navigate(navigateTo || 'MovieDetail', { movieData: movie });
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {movies.map((movie) => (
+          <TouchableOpacity
+            key={movie.id}
+            style={styles.movieCard}
+            onPress={() => handleMoviePress(movie)}
+          >
+            <MovieItem item={movie} />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
-    <FlatList
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      data={movies || []}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <MovieItem item={item} />}
-    />
-  </View>
-);
+  );
+};
 
 const styles = {
-  movieListContainer: {
+  section: {
     marginBottom: 24,
   },
-  listHeaderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  header: {
+  sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 8,
   },
-  seeAll: {
-    fontSize: 14,
-    color: "#1e90ff",
+  movieCard: {
+    marginRight: 16,
   },
 };
 

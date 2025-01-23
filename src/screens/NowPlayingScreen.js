@@ -12,7 +12,7 @@ import Navbar from "../components/Navbar";
 import styles from "../styles/styles";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const NowPlayingPage = () => {
+const NowPlayingScreen = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +20,7 @@ const NowPlayingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("NowPlaying");
   const [userData, setUserData] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -28,6 +29,7 @@ const NowPlayingPage = () => {
         if (userDataString) {
           const userData = JSON.parse(userDataString);
           setUserData(userData);
+          setIsAdmin(userData.role === 'admin');
         }
       } catch (error) {
         console.error("Error getting user data:", error);
@@ -74,7 +76,7 @@ const NowPlayingPage = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>
-          Welcome {userData?.nama || 'to the apps'}!
+          {isAdmin ? "Welcome Administrator" : `Welcome ${userData?.nama || 'to the apps'}!`}
         </Text>
         <Text style={styles.headersubText}>
           What movie do you want to order?
@@ -95,23 +97,11 @@ const NowPlayingPage = () => {
             style={{ marginTop: 80 }}
           />
         ) : searchResults.length > 0 ? (
-          <MovieList 
-            title="Search Results" 
-            movies={searchResults} 
-            navigateTo="MovieDetail"
-          />
+          <MovieList title="Search Results" movies={searchResults} />
         ) : (
           <>
-            <MovieList 
-              title="Popular Movies" 
-              movies={popularMovies} 
-              navigateTo="MovieDetail"
-            />
-            <MovieList 
-              title="Now Playing" 
-              movies={nowPlayingMovies} 
-              navigateTo="MovieDetail"
-            />
+            <MovieList title="Popular Movies" movies={popularMovies} />
+            <MovieList title="Now Playing" movies={nowPlayingMovies} />
           </>
         )}
       </ScrollView>
@@ -124,4 +114,4 @@ const NowPlayingPage = () => {
   );
 };
 
-export default NowPlayingPage;
+export default NowPlayingScreen;

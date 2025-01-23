@@ -12,18 +12,6 @@ import { FontAwesome } from "@expo/vector-icons";
 const MovieItem = ({ item }) => {
   const navigation = useNavigation();
 
-  const handleTicketPress = () => {
-    navigation.navigate("Payment", {
-      movieData: {
-        title: item.title,
-        poster_path: item.poster_path,
-        overview: item.overview,
-        release_date: item.release_date,
-        vote_average: item.vote_average, // Kirim rating juga jika dibutuhkan
-      },
-    });
-  };
-
   // Fungsi untuk menampilkan bintang berdasarkan rating
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating / 2); // Bintang penuh
@@ -61,27 +49,22 @@ const MovieItem = ({ item }) => {
 
   return (
     <View style={styles.movieItem}>
-      <TouchableOpacity
-        style={styles.messageButton}
-        onPress={handleTicketPress}
+      <ImageBackground
+        source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+        style={styles.movieImage}
       >
-        <ImageBackground
-          source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-          style={styles.movieImage}
-        >
-          <View style={styles.gradientOverlay} />
-          <View style={styles.movieContent}>
-            <Text style={styles.movieTitle}>{item.title}</Text>
-            <View style={styles.ratingRow}>
-              {renderStars(item.vote_average)}
-              <Text style={styles.reviewCount}>
-                {" "}
-                ({item.vote_count || "0"})
-              </Text>
-            </View>
+        <View style={styles.gradientOverlay} />
+        <View style={styles.movieContent}>
+          <Text style={styles.movieTitle}>{item.title}</Text>
+          <View style={styles.ratingRow}>
+            {renderStars(item.vote_average)}
+            <Text style={styles.reviewCount}>
+              {" "}
+              ({item.vote_count || "0"})
+            </Text>
           </View>
-        </ImageBackground>
-      </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </View>
   );
 };

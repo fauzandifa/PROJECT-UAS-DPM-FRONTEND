@@ -3,13 +3,23 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const Navbar = ({ activePage, setActivePage, disabled }) => {
+const Navbar = ({ activePage, setActivePage }) => {
   const navigation = useNavigation();
 
-  const handleNavigation = (route) => {
-    if (!disabled) {
-      setActivePage(route);
-      navigation.navigate(route);
+  const handlePress = (page) => {
+    setActivePage(page);
+    switch (page) {
+      case 'NowPlaying':
+        navigation.navigate('NowPlaying');
+        break;
+      case 'ComingSoon':
+        navigation.navigate('ComingSoon');
+        break;
+      case 'Profile':
+        navigation.navigate('Profile');
+        break;
+      default:
+        break;
     }
   };
 
@@ -17,56 +27,49 @@ const Navbar = ({ activePage, setActivePage, disabled }) => {
     <View style={styles.navbar}>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => handleNavigation("Home")}
+        onPress={() => handlePress('NowPlaying')}
       >
         <Ionicons
-          name="film-outline"
+          name={activePage === 'NowPlaying' ? 'film' : 'film-outline'}
           size={24}
-          color={activePage === "NowPlaying" ? "#1e90ff" : "#555"}
+          color={activePage === 'NowPlaying' ? '#1e90ff' : '#000'}
         />
-        <Text
-          style={[
-            styles.navText,
-            { color: activePage === "NowPlaying" ? "#1e90ff" : "#555" },
-          ]}
-        >
-          Film
+        <Text style={[
+          styles.navText,
+          activePage === 'NowPlaying' && styles.activeText
+        ]}>
+          Home
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => handleNavigation("ComingSoon")}
+        onPress={() => handlePress('ComingSoon')}
       >
         <Ionicons
-          name="time-outline"
+          name={activePage === 'ComingSoon' ? 'time' : 'time-outline'}
           size={24}
-          color={activePage === "ComingSoon" ? "#1e90ff" : "#555"}
+          color={activePage === 'ComingSoon' ? '#1e90ff' : '#000'}
         />
-        <Text
-          style={[
-            styles.navText,
-            { color: activePage === "ComingSoon" ? "#1e90ff" : "#555" },
-          ]}
-        >
+        <Text style={[
+          styles.navText,
+          activePage === 'ComingSoon' && styles.activeText
+        ]}>
           Coming Soon
         </Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.navItem}
-        onPress={() => handleNavigation("Profile")}
+        onPress={() => handlePress('Profile')}
       >
         <Ionicons
-          name="person-outline"
+          name={activePage === 'Profile' ? 'person' : 'person-outline'}
           size={24}
-          color={activePage === "Profile" ? "#1e90ff" : "#555"}
+          color={activePage === 'Profile' ? '#1e90ff' : '#000'}
         />
-        <Text
-          style={[
-            styles.navText,
-            { color: activePage === "Profile" ? "#1e90ff" : "#555" },
-          ]}
-        >
+        <Text style={[
+          styles.navText,
+          activePage === 'Profile' && styles.activeText
+        ]}>
           Profile
         </Text>
       </TouchableOpacity>
@@ -78,6 +81,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
     backgroundColor: "#fff",
     paddingVertical: 10,
     borderTopWidth: 1,
@@ -88,14 +92,17 @@ const styles = StyleSheet.create({
     right: 0,
   },
   navItem: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
     padding: 10,
   },
   navText: {
     fontSize: 12,
-    fontFamily: "bold",
-    color: "#555",
+    marginTop: 4,
+    color: '#000',
+  },
+  activeText: {
+    color: '#1e90ff',
+    fontWeight: 'bold',
   },
 });
 
