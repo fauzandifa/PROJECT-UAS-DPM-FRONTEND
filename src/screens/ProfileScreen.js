@@ -7,12 +7,10 @@ import Navbar from "../components/Navbar";
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 
-const { width } = Dimensions.get('window');
-
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [userProfile, setUserProfile] = useState({
-    nama: '',
+    nama: 'Guest',
     email: '',
     username: ''
   });
@@ -20,23 +18,46 @@ const ProfileScreen = () => {
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
 
   useEffect(() => {
-    const getUserProfile = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const userData = await AsyncStorage.getItem('userData');
-        if (userData) {
-          const { user } = JSON.parse(userData);
-          setUserProfile({
-            nama: user.nama,
-            email: user.email,
-            username: user.username
-          });
+        // Ambil data pengguna dari AsyncStorage
+        const userDataString = await AsyncStorage.getItem('userData');
+        
+        if (!userDataString) {
+          console.warn('Tidak ada data pengguna');
+          return;
         }
+
+        // Parse data JSON dengan penanganan kesalahan
+        let userData;
+        try {
+          userData = JSON.parse(userDataString);
+        } catch (parseError) {
+          console.error('Kesalahan parsing data:', parseError);
+          return;
+        }
+
+        // Validasi struktur data
+        const profileData = userData.user || userData;
+        
+        if (!profileData) {
+          console.error('Struktur data tidak valid', userData);
+          return;
+        }
+
+        // Set profil pengguna dengan data yang ditemukan
+        setUserProfile({
+          nama: profileData.nama || profileData.name || 'Guest',
+          email: profileData.email || '',
+          username: profileData.username || profileData.name || ''
+        });
+
       } catch (error) {
-        console.error('Error getting user profile:', error);
+        console.error('Kesalahan mengambil profil:', error);
       }
     };
 
-    getUserProfile();
+    fetchUserProfile();
   }, []);
 
   const handleLogout = () => {
@@ -45,15 +66,18 @@ const ProfileScreen = () => {
 
   const handleLogoutConfirm = async () => {
     try {
+      // Hapus data pengguna dari AsyncStorage
       await AsyncStorage.multiRemove(['userData', 'userToken']);
       setLogoutModalVisible(false);
+      
+      // Reset navigasi ke layar login
       navigation.reset({
         index: 0,
         routes: [{ name: 'Login' }],
       });
     } catch (error) {
-      console.error('Error during logout:', error);
-      Alert.alert('Error', 'Gagal melakukan logout. Silakan coba lagi.');
+      console.error('Kesalahan logout:', error);
+      Alert.alert('Kesalahan', 'Gagal melakukan logout. Silakan coba lagi.');
     }
   };
 

@@ -8,7 +8,6 @@ import {
   Alert,
   ActivityIndicator,
   Animated,
-  Modal,
   Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,7 +22,6 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [emailOrUsernameFocused, setEmailOrUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailOrUsernameLabelPosition] = useState(new Animated.Value(0));
@@ -83,7 +81,7 @@ const LoginScreen = ({ navigation }) => {
       if (response.data.success) {
         await AsyncStorage.setItem('userToken', response.data.data.token);
         await AsyncStorage.setItem('userData', JSON.stringify(response.data.data.user));
-        setModalVisible(true);
+        navigation.replace("NowPlaying"); // Directly navigate to NowPlaying screen
       }
       
     } catch (error) {
@@ -96,6 +94,7 @@ const LoginScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
+
 
   const handleFocus = (setFocused, labelPosition) => {
     setFocused(true);
@@ -119,39 +118,6 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>SELECT MODE</Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#007AFF" }]}
-                onPress={() => {
-                  setModalVisible(false);
-                  navigation.replace("BackendScreen");
-                }}
-              >
-                <Text style={styles.modalButtonText}>BACKEND</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#007AFF" }]}
-                onPress={() => {
-                  setModalVisible(false);
-                  navigation.replace("NowPlaying");
-                }}
-              >
-                <Text style={styles.modalButtonText}>FRONTEND</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
       <Animated.View style={[
         styles.titleContainer,
         {

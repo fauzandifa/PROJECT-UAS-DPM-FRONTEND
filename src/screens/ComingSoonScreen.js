@@ -22,18 +22,30 @@ const ComingSoonScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("ComingSoon");
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState('Guest');
 
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const userData = await AsyncStorage.getItem('userData');
-        if (userData) {
-          const { user } = JSON.parse(userData);
-          setUserName(user.nama);
+        const userDataString = await AsyncStorage.getItem('userData');
+        console.log('Raw UserData:', userDataString); // Debug log
+        
+        if (userDataString) {
+          const parsedData = JSON.parse(userDataString);
+          console.log('Parsed UserData:', parsedData); // Debug log
+          
+          // Multiple fallback checks
+          const userName = 
+            parsedData.user?.nama || 
+            parsedData.nama || 
+            parsedData.name || 
+            'Guest';
+          
+          setUserName(userName);
         }
       } catch (error) {
-        console.error('Error getting user data:', error);
+        console.error('Complete error getting user data:', error);
+        setUserName('Guest');
       }
     };
 
@@ -104,7 +116,7 @@ const ComingSoonScreen = () => {
       >
         <View style={styles.header}>
           <Text style={styles.headerText}>
-            Welcome, {userName || 'Guest'}!
+            Welcome, {userName}!
           </Text>
           <Text style={styles.headerSubText}>
             Check out these upcoming movies!

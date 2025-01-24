@@ -20,19 +20,30 @@ const NowPlayingScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("NowPlaying");
-  const [userData, setUserData] = useState({ nama: '' });
+  const [userName, setUserName] = useState('Guest');
 
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const userDataString = await AsyncStorage.getItem("userData");
+        const userDataString = await AsyncStorage.getItem('userData');
+        console.log('Raw UserData:', userDataString); // Debug log
+        
         if (userDataString) {
           const parsedData = JSON.parse(userDataString);
-          setUserData(parsedData.user || { nama: '' });
+          console.log('Parsed UserData:', parsedData); // Debug log
+          
+          // Multiple fallback checks
+          const name = 
+            parsedData.user?.nama || 
+            parsedData.nama || 
+            parsedData.name || 
+            'Guest';
+          
+          setUserName(name);
         }
       } catch (error) {
-        console.error("Error getting user data:", error);
-        setUserData({ nama: '' });
+        console.error('Complete error getting user data:', error);
+        setUserName('Guest');
       }
     };
 
@@ -79,7 +90,7 @@ const NowPlayingScreen = () => {
       >
         <View style={styles.header}>
           <Text style={styles.headerText}>
-            Welcome, {userData?.nama || 'Guest'}!
+            Welcome, {userName}!
           </Text>
           <Text style={styles.headerSubText}>
             What movie do you want to watch today?
