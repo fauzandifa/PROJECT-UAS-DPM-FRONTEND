@@ -11,7 +11,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axiosInstance, { API_ENDPOINTS } from '../config/api';
 import { Ionicons } from '@expo/vector-icons';
 
 const PasswordPaymentScreen = ({ route, navigation }) => {
@@ -42,10 +41,10 @@ const PasswordPaymentScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'Please enter your password');
       return;
     }
-
+  
     try {
-      const response = await axiosInstance.post(
-        API_ENDPOINTS.verifyPassword,
+      const response = await axios.post(
+        'http://192.168.1.5:5000/api/book/verify-password',
         {
           username,
           password,
@@ -53,50 +52,20 @@ const PasswordPaymentScreen = ({ route, navigation }) => {
           bookingDetails
         }
       );
-
+  
       if (response.data.success) {
-        Alert.alert(
-          '🎉 Payment Successful!',
-          `Congratulations! Your tickets for "${movieData.title}" have been booked.\n\n` +
-          `Date: ${new Date(bookingDetails.date).toLocaleDateString()}\n` +
-          `Time: ${bookingDetails.time}\n` +
-          `Seats: ${bookingDetails.seats.join(', ')}\n` +
-          `Total: Rp ${bookingDetails.totalPrice.toLocaleString()}`,
-          [
-            {
-              text: '📋 View Receipt',
-              style: 'default',
-              onPress: () => {
-                if (userData && userData.user) {
-                  navigation.navigate('ReceiptScreen', {
-                    movieData,
-                    bookingDetails,
-                    userData: {
-                      nama: userData.user.nama,
-                      username: userData.user.username
-                    }
-                  });
-                } else {
-                  Alert.alert('Error', 'User data not found');
-                }
-              }
-            }
-          ],
-          { cancelable: false }
-        );
+        Alert.alert('Payment Successful', 'Your booking has been confirmed!');
+        navigation.navigate('ReceiptScreen', {
+          movieData,
+          bookingDetails,
+          userData: {
+            nama: userData.user.nama,
+            username: userData.user.username
+          }
+        });
       }
     } catch (error) {
-      console.error('Payment error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
-      Alert.alert(
-        '❌ Payment Failed',
-        'We apologize, but there was an issue processing your payment.\n\n' +
-        'Please check your password and try again.',
-        [{ text: 'Try Again', style: 'default' }]
-      );
+      Alert.alert('Payment Failed', 'Please check your password and try again.');
     }
   };
 

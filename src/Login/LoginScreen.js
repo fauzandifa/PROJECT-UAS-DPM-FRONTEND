@@ -13,12 +13,12 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { API_ENDPOINTS, BASE_URL } from '../config/api';
-import axiosInstance from '../config/api';
+import axios from 'axios';
 
 const { height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
+  // Deklarasi semua state yang dibutuhkan
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,6 @@ const LoginScreen = ({ navigation }) => {
   useEffect(() => {
     // Start entrance animations
     Animated.parallel([
-      // Fade in and slide up content
       Animated.timing(contentOpacity, {
         toValue: 1,
         duration: 800,
@@ -51,7 +50,6 @@ const LoginScreen = ({ navigation }) => {
         delay: 100,
         useNativeDriver: true,
       }),
-      // Title animations
       Animated.timing(titleScale, {
         toValue: 1,
         duration: 800,
@@ -66,19 +64,21 @@ const LoginScreen = ({ navigation }) => {
   }, []);
 
   const handleLogin = async () => {
-    try {
-      if (!email || !password) {
-        Alert.alert('Error', 'Email dan password harus diisi');
-        return;
-      }
+    if (!email || !password) {
+      Alert.alert('Error', 'Email dan password harus diisi');
+      return;
+    }
 
+    try {
       setLoading(true);
+      console.log('Attempting login with:', { email, password });
       
-      // Kirim request tanpa hashing password
-      const response = await axiosInstance.post('/api/auth/login', {
+      const response = await axios.post('http://192.168.1.5:5000/api/auth/login', {
         email: email,
-        password: password // Password langsung dikirim tanpa hash
+        password: password
       });
+
+      console.log('Login response:', response.data); // Debug log
       
       if (response.data.success) {
         await AsyncStorage.setItem('userToken', response.data.data.token);
@@ -87,9 +87,9 @@ const LoginScreen = ({ navigation }) => {
       }
       
     } catch (error) {
-      console.error("Login error:", error.response?.data);
+      console.error('Login error details:', error.response?.data);
       Alert.alert(
-        'Error', 
+        'Error',
         error.response?.data?.message || 'Email atau password salah'
       );
     } finally {
@@ -185,13 +185,13 @@ const LoginScreen = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={text => {
+              setEmail(text.trim());
+            }}
             autoCapitalize="none"
             keyboardType="email-address"
             onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
-            onBlur={() =>
-              handleBlur(setEmailOrUsernameFocused, email, emailOrUsernameLabelPosition)
-            }
+            onBlur={() => handleBlur(setEmailOrUsernameFocused, email, emailOrUsernameLabelPosition)}
             placeholder="Enter your email"
             placeholderTextColor="#999"
           />
@@ -215,9 +215,7 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry={!showPassword}
             placeholderTextColor="#999"
             onFocus={() => handleFocus(setPasswordFocused, passwordLabelPosition)}
-            onBlur={() =>
-              handleBlur(setPasswordFocused, password, passwordLabelPosition)
-            }
+            onBlur={() => handleBlur(setPasswordFocused, password, passwordLabelPosition)}
           />
           <TouchableOpacity
             style={styles.iconContainer}
@@ -263,6 +261,7 @@ const LoginScreen = ({ navigation }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

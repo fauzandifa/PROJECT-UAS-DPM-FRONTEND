@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Navbar from "../components/Navbar";
 import axios from 'axios';
-import axiosInstance, { API_ENDPOINTS } from '../config/api';
 
 const HistoryScreen = () => {
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -25,25 +24,16 @@ const HistoryScreen = () => {
         setLoading(false);
         return;
       }
-
+  
       const { user } = JSON.parse(userData);
-      console.log('Fetching history for user:', user.username);
       
-      const response = await axiosInstance.get(API_ENDPOINTS.bookingHistory(user.username));
-      
-      console.log('Response received:', response.data);
+      const response = await axios.get(`http://192.168.1.5:5000/api/book/history/${user.username}`);
       
       if (response.data.success) {
         setBookingHistory(response.data.data);
-      } else {
-        console.error('Failed to fetch booking history:', response.data.message);
       }
     } catch (error) {
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.error('Error fetching booking history:', error);
       setBookingHistory([]);
     } finally {
       setLoading(false);

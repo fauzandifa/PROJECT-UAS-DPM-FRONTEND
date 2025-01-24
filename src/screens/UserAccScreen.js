@@ -7,7 +7,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
-import { API_ENDPOINTS } from '../config/api';
 
 const UserAccScreen = () => {
   const [users, setUsers] = useState([]);
@@ -15,7 +14,7 @@ const UserAccScreen = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(API_ENDPOINTS.users);
+      const response = await axios.get('http://192.168.1.5:5000/api/users');
       setUsers(response.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);

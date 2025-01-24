@@ -7,20 +7,19 @@ import {
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
-import { API_ENDPOINTS } from '../config/api';
 
 const BookingUserScreen = () => {
   const [bookings, setBookings] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchBookings = async () => {
-    try {
-      const response = await axios.get(API_ENDPOINTS.allBookings);
-      setBookings(response.data.data);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-    }
-  };
+  try {
+    const response = await axios.get('http://192.168.1.5:5000/api/book/user-bookings');
+    setBookings(response.data.data);
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+  }
+};
 
   useEffect(() => {
     fetchBookings();

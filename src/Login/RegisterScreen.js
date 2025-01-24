@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
 import axios from 'axios';
-import { API_ENDPOINTS, BASE_URL } from '../config/api';
+
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -149,17 +149,16 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleRegister = async () => {
     if (!validateForm()) return;
-
+  
     try {
       setLoading(true);
-      
-      const response = await axios.post('http://192.168.1.5:5002/api/auth/register', {
+      const response = await axios.post('http://192.168.1.5:5000/api/auth/register', {
         email: formData.email,
         nama: formData.nama,
         password: formData.password,
         username: formData.username
       });
-      
+  
       if (response.data.success) {
         Alert.alert(
           "Success",
@@ -168,7 +167,6 @@ const RegisterScreen = ({ navigation }) => {
         );
       }
     } catch (error) {
-      console.error("Registration error:", error.response?.data);
       Alert.alert(
         "Error",
         error.response?.data?.message || 'Registration failed'

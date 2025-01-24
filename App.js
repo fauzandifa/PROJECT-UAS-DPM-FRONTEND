@@ -9,7 +9,6 @@ import NowPlayingScreen from "./src/screens/NowPlayingScreen";
 import ComingSoonScreen from "./src/screens/ComingSoonScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import HistoryScreen from "./src/screens/HistoryScreen";
-import BackendScreen from "./src/screens/backendScreen";
 import ChatAdmin from "./src/screens/ChatAdmin";
 import MovieDetailScreen from './src/screens/MovieDetailScreen';
 import BookFilmScreen from './src/screens/BookFilmScreen';
