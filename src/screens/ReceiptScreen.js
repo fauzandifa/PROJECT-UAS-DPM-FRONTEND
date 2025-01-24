@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -14,6 +13,34 @@ const ReceiptScreen = ({ route, navigation }) => {
 
   const handleDone = () => {
     navigation.navigate('NowPlaying');
+  };
+
+  const formatCurrency = (amount) => {
+    return typeof amount === 'number' 
+      ? `Rp ${amount.toLocaleString()}`
+      : 'Rp 0';
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Invalid date';
+    }
+  };
+
+  const renderSeats = (seats) => {
+    // Gunakan selectedSeats jika seats tidak ada
+    const seatsArray = seats || bookingDetails?.selectedSeats;
+    if (!seatsArray || !Array.isArray(seatsArray)) {
+      return 'No seats selected';
+    }
+    return seatsArray.join(', ');
   };
 
   return (
@@ -31,29 +58,24 @@ const ReceiptScreen = ({ route, navigation }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Customer Information</Text>
               <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>{userData.nama}</Text>
+              <Text style={styles.value}>{userData?.nama || 'N/A'}</Text>
               <Text style={styles.label}>Username:</Text>
-              <Text style={styles.value}>{userData.username}</Text>
+              <Text style={styles.value}>{userData?.username || 'N/A'}</Text>
             </View>
 
             {/* Movie Info */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Movie Details</Text>
               <Text style={styles.label}>Movie:</Text>
-              <Text style={styles.value}>{movieData.title}</Text>
+              <Text style={styles.value}>{movieData?.title || 'N/A'}</Text>
               <Text style={styles.label}>Date:</Text>
               <Text style={styles.value}>
-                {new Date(bookingDetails.date).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+                {formatDate(bookingDetails?.date)}
               </Text>
               <Text style={styles.label}>Time:</Text>
-              <Text style={styles.value}>{bookingDetails.time}</Text>
+              <Text style={styles.value}>{bookingDetails?.time || 'N/A'}</Text>
               <Text style={styles.label}>Seats:</Text>
-              <Text style={styles.value}>{bookingDetails.seats.join(', ')}</Text>
+              <Text style={styles.value}>{renderSeats(bookingDetails?.seats)}</Text>
             </View>
 
             {/* Payment Info */}
@@ -61,7 +83,7 @@ const ReceiptScreen = ({ route, navigation }) => {
               <Text style={styles.sectionTitle}>Payment Details</Text>
               <Text style={styles.label}>Total Amount:</Text>
               <Text style={styles.amount}>
-                Rp {bookingDetails.totalPrice.toLocaleString()}
+                {formatCurrency(bookingDetails?.totalAmount || bookingDetails?.totalPrice)}
               </Text>
             </View>
 
@@ -152,4 +174,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReceiptScreen; 
+export default ReceiptScreen;

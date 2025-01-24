@@ -26,9 +26,11 @@ const NowPlayingPage = () => {
     const getUserData = async () => {
       try {
         const userDataString = await AsyncStorage.getItem("userData");
+        console.log('Retrieved userDataString:', userDataString); // Add logging
         if (userDataString) {
           const parsedData = JSON.parse(userDataString);
-          setUserData(parsedData.user || { nama: '' });
+          console.log('Parsed userData:', parsedData); // Add logging
+          setUserData(parsedData || { nama: '' });
         }
       } catch (error) {
         console.error("Error getting user data:", error);

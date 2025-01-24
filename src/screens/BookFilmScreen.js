@@ -33,8 +33,8 @@ const BookFilmScreen = ({ route, navigation }) => {
 
   // Tambahkan fungsi calculateTotalPrice
   const calculateTotalPrice = () => {
-    return selectedSeats.length * TICKET_PRICE;
-  };
+    return selectedSeats.length * PRICE_PER_SEAT; // Returns a number
+};
 
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
@@ -57,18 +57,21 @@ const BookFilmScreen = ({ route, navigation }) => {
       return;
     }
 
+    // Debug log
+    console.log('Selected seats:', selectedSeats);
+    const totalAmount = calculateTotalPrice();
+    console.log('Total amount:', totalAmount);
+
     navigation.navigate('PasswordPayment', {
       movieData,
       bookingDetails: {
-        date: selectedDate,
+        date: selectedDate.toISOString(), // Convert to ISO string
         time: selectedTime,
-        seats: selectedSeats,
-        totalPrice: calculateTotalPrice(),
-        ticketPrice: TICKET_PRICE,
-        numberOfTickets: selectedSeats.length
+        selectedSeats: selectedSeats,     // Array of seats
+        totalAmount: totalAmount          // Number
       }
     });
-  };
+};
 
   const renderSeats = () => {
     return rows.map((row) => (

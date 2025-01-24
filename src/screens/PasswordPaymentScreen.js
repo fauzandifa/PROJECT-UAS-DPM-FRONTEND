@@ -25,50 +25,92 @@ const PasswordPaymentScreen = ({ route, navigation }) => {
       try {
         const userDataString = await AsyncStorage.getItem('userData');
         if (userDataString) {
-          const data = JSON.parse(userDataString);
-          setUserData(data);
-          setUsername(data.user.username || '');
+          const parsedData = JSON.parse(userDataString);
+          if (parsedData && parsedData.username) {
+            setUsername(parsedData.username);
+            setUserData(parsedData);
+          } else {
+            Alert.alert('Error', 'Invalid user data. Please login again.');
+          }
         }
       } catch (error) {
-        console.error('Error getting username:', error);
+        Alert.alert('Error', 'Failed to load user data');
       }
     };
     getUserData();
   }, []);
 
   const handlePayment = async () => {
-    if (!password) {
-      Alert.alert('Error', 'Please enter your password');
+    if (!password || !username) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
   
     try {
-      const response = await axios.post(
-        'http://192.168.1.5:5000/api/book/verify-password',
-        {
-          username,
-          password,
-          movieData,
-          bookingDetails
+      // Format data dengan explicit parsing untuk totalAmount
+      const paymentData = {
+        username,
+        password,
+        movieData: {
+          id: movieData.id,
+          title: movieData.title,
+          poster_path: movieData.poster_path
+        },
+        bookingDetails: {
+          date: bookingDetails.date,
+          time: bookingDetails.time,
+          selectedSeats: bookingDetails.selectedSeats || [],
+          totalAmount: Number(bookingDetails.totalAmount) // Pastikan ini number
         }
+      };
+  
+      console.log('Debug - Sending payment data:', paymentData);
+  
+      // Tambahkan validasi sebelum kirim request
+      if (isNaN(paymentData.bookingDetails.totalAmount)) {
+        Alert.alert('Error', 'Invalid total amount format');
+        return;
+      }
+  
+      const response = await axios.post(
+        'http://192.168.1.5:5000/api/book/verify-payment',
+        paymentData
       );
   
+      console.log('Debug - Payment response:', response.data);
+  
       if (response.data.success) {
-        Alert.alert('Payment Successful', 'Your booking has been confirmed!');
-        navigation.navigate('ReceiptScreen', {
-          movieData,
-          bookingDetails,
-          userData: {
-            nama: userData.user.nama,
-            username: userData.user.username
-          }
-        });
+        Alert.alert(
+          'Success',
+          'Payment successful!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('ReceiptScreen', {
+                  movieData,
+                  bookingDetails: {
+                    ...bookingDetails,
+                    totalAmount: Number(bookingDetails.totalAmount)
+                  },
+                  userData: {
+                    nama: userData.nama,
+                    username
+                  }
+                });
+              }
+            }
+          ]
+        );
       }
     } catch (error) {
-      Alert.alert('Payment Failed', 'Please check your password and try again.');
+      console.error('Payment error details:', error.response?.data);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Payment failed'
+      );
     }
   };
-
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -207,4 +249,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PasswordPaymentScreen; 
+export default PasswordPaymentScreen;

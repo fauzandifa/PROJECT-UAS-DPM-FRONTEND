@@ -117,7 +117,7 @@ const ProfileScreen = () => {
           <View style={styles.menuContainer}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => navigation.navigate('HistoryScreen')}
+              onPress={() => navigation.navigate('History')}
             >
               <View style={styles.menuIconContainer}>
                 <Ionicons name="ticket-outline" size={24} color="#fff" />
