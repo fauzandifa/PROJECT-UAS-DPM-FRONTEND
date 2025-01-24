@@ -28,6 +28,14 @@ const BookFilmScreen = ({ route, navigation }) => {
   const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
   const seatsPerRow = 5;
 
+  // Tambahkan konstanta harga tiket
+  const TICKET_PRICE = 50000; // Rp 50.000 per tiket
+
+  // Tambahkan fungsi calculateTotalPrice
+  const calculateTotalPrice = () => {
+    return selectedSeats.length * TICKET_PRICE;
+  };
+
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
     if (date) {
@@ -43,24 +51,21 @@ const BookFilmScreen = ({ route, navigation }) => {
     }
   };
 
-  const handlePayment = () => {
-    if (!selectedTime) {
-      Alert.alert('Error', 'Please select a time slot');
-      return;
-    }
-    
-    if (selectedSeats.length === 0) {
-      Alert.alert('Error', 'Please select at least one seat');
+  const handleBooking = () => {
+    if (!selectedDate || !selectedTime || selectedSeats.length === 0) {
+      Alert.alert('Error', 'Please select date, time and seats');
       return;
     }
 
-    navigation.navigate("PasswordPayment", { 
+    navigation.navigate('PasswordPayment', {
       movieData,
       bookingDetails: {
         date: selectedDate,
         time: selectedTime,
         seats: selectedSeats,
-        totalPrice: selectedSeats.length * PRICE_PER_SEAT
+        totalPrice: calculateTotalPrice(),
+        ticketPrice: TICKET_PRICE,
+        numberOfTickets: selectedSeats.length
       }
     });
   };
@@ -202,7 +207,7 @@ const BookFilmScreen = ({ route, navigation }) => {
                 styles.continueButton,
                 (!selectedTime || selectedSeats.length === 0) && styles.disabledButton
               ]}
-              onPress={handlePayment}
+              onPress={handleBooking}
               disabled={!selectedTime || selectedSeats.length === 0}
             >
               <Text style={styles.continueButtonText}>Continue to Payment</Text>

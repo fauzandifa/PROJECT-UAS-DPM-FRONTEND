@@ -13,13 +13,13 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, BASE_URL } from '../config/api';
 import axiosInstance from '../config/api';
 
 const { height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,74 +67,31 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      if (!username || !password) {
-        Alert.alert('Error', 'Username dan password harus diisi');
-        return;
-      }
-
-      // Admin login check
-      if (username === 'admin@tiketku.com' && password === 'dpmkel7') {
-        await AsyncStorage.setItem('userData', JSON.stringify({
-          nama: "Administrator",
-          email: "admin@tiketku.com",
-          role: "admin"
-        }));
-        await AsyncStorage.setItem('isAdmin', 'true');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'NowPlaying' }],
-        });
+      if (!email || !password) {
+        Alert.alert('Error', 'Email dan password harus diisi');
         return;
       }
 
       setLoading(true);
-      console.log('Making login request to:', API_ENDPOINTS.login);
-      console.log('With credentials:', { email: username, password: '***' });
-
-      const response = await axiosInstance.post(API_ENDPOINTS.login, {
-        email: username,
-        password: password
+      
+      // Kirim request tanpa hashing password
+      const response = await axiosInstance.post('/api/auth/login', {
+        email: email,
+        password: password // Password langsung dikirim tanpa hash
       });
-
-      console.log('Login response:', response.data);
-
+      
       if (response.data.success) {
-        const userData = response.data.data;
-        
-        if (!userData || !userData.token || !userData.user) {
-          throw new Error('Invalid response format');
-        }
-
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        await AsyncStorage.setItem('token', userData.token);
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'NowPlaying' }],
-        });
-      } else {
-        throw new Error(response.data.message || 'Login failed');
+        await AsyncStorage.setItem('userToken', response.data.data.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(response.data.data.user));
+        setModalVisible(true);
       }
+      
     } catch (error) {
-      console.error('Login error full details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        url: error.config?.url,
-        method: error.config?.method,
-        data: error.config?.data
-      });
-
-      let errorMessage = 'Login gagal. ';
-      if (error.message === 'Network Error') {
-        errorMessage += 'Tidak dapat terhubung ke server. Periksa koneksi Anda dan pastikan server berjalan.';
-      } else if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else {
-        errorMessage += 'Silakan coba lagi.';
-      }
-
-      Alert.alert('Error', errorMessage);
+      console.error("Login error:", error.response?.data);
+      Alert.alert(
+        'Error', 
+        error.response?.data?.message || 'Email atau password salah'
+      );
     } finally {
       setLoading(false);
     }
@@ -227,13 +184,13 @@ const LoginScreen = ({ navigation }) => {
           </Animated.Text>
           <TextInput
             style={styles.input}
-            value={username}
-            onChangeText={setUsername}
-            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
             autoCapitalize="none"
+            keyboardType="email-address"
             onFocus={() => handleFocus(setEmailOrUsernameFocused, emailOrUsernameLabelPosition)}
             onBlur={() =>
-              handleBlur(setEmailOrUsernameFocused, username, emailOrUsernameLabelPosition)
+              handleBlur(setEmailOrUsernameFocused, email, emailOrUsernameLabelPosition)
             }
             placeholder="Enter your email"
             placeholderTextColor="#999"

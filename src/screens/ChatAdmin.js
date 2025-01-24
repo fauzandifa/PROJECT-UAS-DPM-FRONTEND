@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -48,7 +49,7 @@ const ChatAdmin = () => {
             "Berikut adalah tutorial pemesanan tiket:\n1. Pilih film yang diinginkan.\n2. Pilih tanggal, waktu, dan tempat duduk.\n3. Masukkan informasi pembayaran.\n4. Klik 'Bayar' dan tiket akan dikonfirmasi.";
         } else if (userMessage === "2") {
           adminResponse =
-            "Anda dapat menghubungi kami di nomor berikut:\n081372215553";
+            "Anda dapat menghubungi kami dengan mengklik tautan dibawah ini:\nwa.me/62823905638223";
         } else {
           adminResponse =
             "Maaf, saya tidak memahami pesan Anda. Ketik 1 untuk tutorial pemesanan tiket atau 2 untuk nomor kontak kami.";
@@ -65,6 +66,17 @@ const ChatAdmin = () => {
           { sender: "admin", text: adminResponse, time: responseTime },
         ]);
       }, 2000); // Simulasi waktu respons admin
+    }
+  };
+
+  const handleLinkPress = async (url) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch (error) {
+      console.error("Gagal membuka link:", error);
     }
   };
 
@@ -93,7 +105,22 @@ const ChatAdmin = () => {
                 msg.sender === "user" ? styles.userMessage : styles.adminMessage
               }
             >
-              <Text style={styles.messageText}>{msg.text}</Text>
+              {msg.text.includes("wa.me") ? (
+                <View>
+                  <Text style={styles.messageText}>
+                    Anda dapat menghubungi kami dengan mengklik tautan dibawah ini:
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleLinkPress("https://wa.me/6282390563822")}
+                  >
+                    <Text style={[styles.messageText, styles.linkText]}>
+                      wa.me/62823905638223
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <Text style={styles.messageText}>{msg.text}</Text>
+              )}
               <Text style={styles.messageTime}>{msg.time}</Text>
             </View>
           </View>
@@ -186,6 +213,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     width: 50,
     height: 50,
+  },
+  linkText: {
+    color: "#007BFF",
   },
 });
 

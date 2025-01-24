@@ -38,7 +38,7 @@ const Navbar = ({ activePage, setActivePage }) => {
           styles.navText,
           activePage === 'NowPlaying' && styles.activeText
         ]}>
-          Home
+          PLAYING
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -54,7 +54,7 @@ const Navbar = ({ activePage, setActivePage }) => {
           styles.navText,
           activePage === 'ComingSoon' && styles.activeText
         ]}>
-          Coming Soon
+          COMING SOON
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -70,7 +70,7 @@ const Navbar = ({ activePage, setActivePage }) => {
           styles.navText,
           activePage === 'Profile' && styles.activeText
         ]}>
-          Profile
+          PROFILE
         </Text>
       </TouchableOpacity>
     </View>
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     color: '#000',
+    fontWeight: '500',
   },
   activeText: {
     color: '#1e90ff',

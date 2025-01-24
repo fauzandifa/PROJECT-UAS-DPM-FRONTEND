@@ -5,6 +5,7 @@ import {
   TextInput,
   View,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { fetchMovies, searchMovies } from "../api/TMDBApi";
 import MovieList from "../components/MovieList";
@@ -19,18 +20,19 @@ const NowPlayingPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("NowPlaying");
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({ nama: '' });
 
   useEffect(() => {
     const getUserData = async () => {
       try {
         const userDataString = await AsyncStorage.getItem("userData");
         if (userDataString) {
-          const userData = JSON.parse(userDataString);
-          setUserData(userData);
+          const parsedData = JSON.parse(userDataString);
+          setUserData(parsedData.user || { nama: '' });
         }
       } catch (error) {
         console.error("Error getting user data:", error);
+        setUserData({ nama: '' });
       }
     };
 
@@ -74,7 +76,7 @@ const NowPlayingPage = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>
-          Welcome {userData?.nama || 'to the apps'}!
+          Welcome {userData?.nama || 'Guest'}!
         </Text>
         <Text style={styles.headersubText}>
           What movie do you want to order?
@@ -87,7 +89,7 @@ const NowPlayingPage = () => {
         value={searchQuery}
         onChangeText={handleSearch}
       />
-      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {isLoading ? (
           <ActivityIndicator
             size="large"
@@ -99,6 +101,7 @@ const NowPlayingPage = () => {
             title="Search Results" 
             movies={searchResults} 
             navigateTo="MovieDetail"
+            containerStyle={styles.movieListContainer}
           />
         ) : (
           <>
@@ -106,11 +109,13 @@ const NowPlayingPage = () => {
               title="Popular Movies" 
               movies={popularMovies} 
               navigateTo="MovieDetail"
+              containerStyle={styles.movieListContainer}
             />
             <MovieList 
               title="Now Playing" 
               movies={nowPlayingMovies} 
               navigateTo="MovieDetail"
+              containerStyle={styles.movieListContainer}
             />
           </>
         )}
@@ -123,5 +128,15 @@ const NowPlayingPage = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 80,
+    paddingHorizontal: 15,
+  },
+  movieListContainer: {
+    paddingHorizontal: 5,
+  }
+});
 
 export default NowPlayingPage;

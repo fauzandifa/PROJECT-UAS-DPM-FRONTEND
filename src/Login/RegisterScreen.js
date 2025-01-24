@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
 import axios from 'axios';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, BASE_URL } from '../config/api';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -152,38 +152,26 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       setLoading(true);
-
-      const response = await axios.post(API_ENDPOINTS.register, formData);
-
-      const data = await response.data;
-
-      if (data.success) {
-        await AsyncStorage.setItem('userToken', data.data.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(data.data.user));
-
+      
+      const response = await axios.post('http://192.168.1.5:5002/api/auth/register', {
+        email: formData.email,
+        nama: formData.nama,
+        password: formData.password,
+        username: formData.username
+      });
+      
+      if (response.data.success) {
         Alert.alert(
           "Success",
           "Registration successful!",
-          [
-            {
-              text: "OK",
-              onPress: () => navigation.replace("Login")
-            }
-          ]
+          [{ text: "OK", onPress: () => navigation.replace("Login") }]
         );
-      } else {
-        Alert.alert("Registration Failed", data.message || "Please try again");
       }
     } catch (error) {
-      console.error("Registration error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        url: error.config?.url
-      });
+      console.error("Registration error:", error.response?.data);
       Alert.alert(
         "Error",
-        error.response?.data?.message || error.message || "Unable to connect to server"
+        error.response?.data?.message || 'Registration failed'
       );
     } finally {
       setLoading(false);

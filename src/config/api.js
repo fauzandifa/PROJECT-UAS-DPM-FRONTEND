@@ -1,60 +1,64 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// Base URL untuk API
+export const BASE_URL = 'http://192.168.1.5:5000'; // Sesuaikan dengan IP dan port backend Anda
 
-// Ganti IP sesuai dengan IP komputer Anda
-const BASE_URL = 'http://192.168.212.37:5000/api';  // Pastikan IP dan port benar
-
-const axiosInstance = axios.create({
-    baseURL: BASE_URL,
-    timeout: 5000,
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
-
-// Debug interceptor
-axiosInstance.interceptors.request.use(request => {
-    console.log('Starting Request:', {
-        url: request.url,
-        method: request.method,
-        data: request.data,
-        headers: request.headers
-    });
-    return request;
-});
-
-axiosInstance.interceptors.response.use(
-    response => {
-        console.log('Response:', response.data);
-        return response;
+// Endpoint-endpoint API
+export const API_ENDPOINTS = {
+    // Auth endpoints
+    AUTH: {
+        LOGIN: '/auth/login',
+        REGISTER: '/auth/register',
+        LOGOUT: '/auth/logout',
     },
-    error => {
-        console.error('API Error:', {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-            url: error.config?.url
-        });
-        return Promise.reject(error);
-    }
-);
+    
+    // User endpoints
+    USER: {
+        PROFILE: '/user/profile',
+        UPDATE_PROFILE: '/user/update',
+        CHANGE_PASSWORD: '/user/change-password',
+    },
+    
+    // Movie endpoints
+    MOVIE: {
+        LIST: '/movies',
+        DETAIL: (id) => `/movies/${id}`,
+        CREATE: '/movies/create',
+        UPDATE: (id) => `/movies/${id}/update`,
+        DELETE: (id) => `/movies/${id}/delete`,
+    },
+    
+    // Review endpoints
+    REVIEW: {
+        LIST: '/reviews',
+        CREATE: '/reviews/create',
+        UPDATE: (id) => `/reviews/${id}/update`,
+        DELETE: (id) => `/reviews/${id}/delete`,
+    },
+    
+    // Watchlist endpoints
+    WATCHLIST: {
+        LIST: '/watchlist',
+        ADD: '/watchlist/add',
+        REMOVE: (id) => `/watchlist/${id}/remove`,
+    },
+};
 
-// Interceptor untuk menambahkan token
-axiosInstance.interceptors.request.use(
-    async (config) => {
-        try {
-            const token = await AsyncStorage.getItem('token');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        } catch (error) {
-            console.error('Error getting token:', error);
+// Axios instance dengan konfigurasi default
+import axios from 'axios';
+
+export const api = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Interceptor untuk menambahkan token ke header
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
-        console.log('Starting Request:', {
-            url: config.url,
-            method: config.method,
-            data: config.data
-        });
         return config;
     },
     (error) => {
@@ -62,14 +66,16 @@ axiosInstance.interceptors.request.use(
     }
 );
 
-export const API_ENDPOINTS = {
-    register: '/auth/register',
-    login: '/auth/login',
-    profile: '/users/profile',
-    users: '/users',
-    bookings: '/booking',
-    allBookings: '/booking/all',
-    verifyPassword: '/auth/verify-password',
-};
-
-export default axiosInstance;
+// Interceptor untuk handling response
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Handle unauthorized access
+            localStorage.removeItem('token');
+            // Redirect to login if needed
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+); 

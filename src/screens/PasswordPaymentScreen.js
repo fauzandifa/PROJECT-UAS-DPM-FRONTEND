@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,35 +11,97 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_ENDPOINTS } from '../config/api';
+import axiosInstance, { API_ENDPOINTS } from '../config/api';
+import { Ionicons } from '@expo/vector-icons';
 
 const PasswordPaymentScreen = ({ route, navigation }) => {
   const { movieData, bookingDetails } = route.params;
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [userData, setUserData] = useState(null);
 
-  const handleVerifyPassword = async () => {
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const userDataString = await AsyncStorage.getItem('userData');
+        if (userDataString) {
+          const data = JSON.parse(userDataString);
+          setUserData(data);
+          setUsername(data.user.username || '');
+        }
+      } catch (error) {
+        console.error('Error getting username:', error);
+      }
+    };
+    getUserData();
+  }, []);
+
+  const handlePayment = async () => {
+    if (!password) {
+      Alert.alert('Error', 'Please enter your password');
+      return;
+    }
+
     try {
-      const userDataString = await AsyncStorage.getItem('userData');
-      const userData = JSON.parse(userDataString);
-
-      const response = await axios.post(API_ENDPOINTS.verifyPassword, {
-        username: userData.username,
-        password: password
-      });
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.verifyPassword,
+        {
+          username,
+          password,
+          movieData,
+          bookingDetails
+        }
+      );
 
       if (response.data.success) {
-        navigation.navigate('ReceiptScreen', {
-          movieData,
-          bookingDetails,
-          userData
-        });
-      } else {
-        Alert.alert('Error', 'Password incorrect');
+        Alert.alert(
+          '🎉 Payment Successful!',
+          `Congratulations! Your tickets for "${movieData.title}" have been booked.\n\n` +
+          `Date: ${new Date(bookingDetails.date).toLocaleDateString()}\n` +
+          `Time: ${bookingDetails.time}\n` +
+          `Seats: ${bookingDetails.seats.join(', ')}\n` +
+          `Total: Rp ${bookingDetails.totalPrice.toLocaleString()}`,
+          [
+            {
+              text: '📋 View Receipt',
+              style: 'default',
+              onPress: () => {
+                if (userData && userData.user) {
+                  navigation.navigate('ReceiptScreen', {
+                    movieData,
+                    bookingDetails,
+                    userData: {
+                      nama: userData.user.nama,
+                      username: userData.user.username
+                    }
+                  });
+                } else {
+                  Alert.alert('Error', 'User data not found');
+                }
+              }
+            }
+          ],
+          { cancelable: false }
+        );
       }
     } catch (error) {
-      console.error('Verification error:', error);
-      Alert.alert('Error', 'Failed to verify password');
+      console.error('Payment error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      Alert.alert(
+        '❌ Payment Failed',
+        'We apologize, but there was an issue processing your payment.\n\n' +
+        'Please check your password and try again.',
+        [{ text: 'Try Again', style: 'default' }]
+      );
     }
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -54,16 +116,30 @@ const PasswordPaymentScreen = ({ route, navigation }) => {
         >
           <View style={styles.content}>
             <Text style={styles.title}>Payment Confirmation</Text>
-            <Text style={styles.subtitle}>Please enter your password to confirm payment</Text>
+            <Text style={styles.subtitle}>
+              Please enter your password {username} to confirm payment
+            </Text>
             
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Enter your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Enter your password"
+                placeholderTextColor="#999"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity 
+                style={styles.eyeIcon}
+                onPress={toggleShowPassword}
+              >
+                <Ionicons 
+                  name={showPassword ? "eye-off" : "eye"} 
+                  size={24} 
+                  color="#1e90ff"
+                />
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity
@@ -75,7 +151,7 @@ const PasswordPaymentScreen = ({ route, navigation }) => {
               
               <TouchableOpacity
                 style={[styles.button, styles.confirmButton]}
-                onPress={handleVerifyPassword}
+                onPress={handlePayment}
               >
                 <Text style={styles.buttonText}>Confirm Payment</Text>
               </TouchableOpacity>
@@ -115,16 +191,28 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
-  passwordInput: {
+  passwordContainer: {
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    position: 'relative',
+  },
+  passwordInput: {
+    flex: 1,
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 10,
     padding: 15,
+    paddingRight: 50,
     color: '#fff',
     fontSize: 16,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#1e90ff',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    padding: 5,
   },
   buttonContainer: {
     flexDirection: 'row',

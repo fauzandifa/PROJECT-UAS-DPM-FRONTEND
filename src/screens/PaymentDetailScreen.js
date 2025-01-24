@@ -81,6 +81,7 @@ const PaymentDetailScreen = ({ route, navigation }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [password, setPassword] = useState('');
 
   const formatCardNumber = (text) => {
     // Remove any spaces and non-digits
@@ -181,15 +182,34 @@ const PaymentDetailScreen = ({ route, navigation }) => {
       const userDataString = await AsyncStorage.getItem('userData');
       const userData = JSON.parse(userDataString);
 
-      if (password === userData.password) {
+      // Kirim request ke backend untuk verifikasi password
+      const response = await axios.post(
+        `${API_ENDPOINTS.verifyPassword}`,
+        {
+          username: userData.user.username,
+          password: password
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${userData.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
         setShowPasswordModal(false);
-        setShowReceipt(true);
-        // Simpan data pembelian ke history jika diperlukan
+        // Lanjutkan dengan pembuatan booking
+        handlePayment();
       } else {
         Alert.alert('Error', 'Password incorrect');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to verify password');
+      console.error('Password verification error:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to verify password'
+      );
     }
   };
 

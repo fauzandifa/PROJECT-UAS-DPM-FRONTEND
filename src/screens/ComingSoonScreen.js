@@ -13,6 +13,7 @@ import { fetchMovies, searchMovies } from "../api/TMDBApi";
 import Navbar from "../components/Navbar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const ComingSoonScreen = () => {
   const navigation = useNavigation();
@@ -21,18 +22,18 @@ const ComingSoonScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState("ComingSoon");
-  const [userData, setUserData] = useState(null);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const userDataString = await AsyncStorage.getItem("userData");
-        if (userDataString) {
-          const userData = JSON.parse(userDataString);
-          setUserData(userData);
+        const userData = await AsyncStorage.getItem('userData');
+        if (userData) {
+          const { user } = JSON.parse(userData);
+          setUserName(user.nama);
         }
       } catch (error) {
-        console.error("Error getting user data:", error);
+        console.error('Error getting user data:', error);
       }
     };
 
@@ -72,22 +73,22 @@ const ComingSoonScreen = () => {
     return (
       <TouchableOpacity
         key={movie.id}
-        style={comingSoonStyles.movieCard}
+        style={styles.movieCard}
         onPress={() => handleMoviePress(movie)}
       >
         <Image
           source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-          style={comingSoonStyles.movieImage}
+          style={styles.movieImage}
         />
-        <View style={comingSoonStyles.movieInfo}>
-          <Text style={comingSoonStyles.movieTitle}>{movie.title}</Text>
-          <Text style={comingSoonStyles.movieDate}>
+        <View style={styles.movieInfo}>
+          <Text style={styles.movieTitle}>{movie.title}</Text>
+          <Text style={styles.movieDate}>
             Release Date: {movie.release_date}
           </Text>
-          <Text style={comingSoonStyles.movieRating}>
+          <Text style={styles.movieRating}>
             Rating: {movie.vote_average.toFixed(1)}/10
           </Text>
-          <Text style={comingSoonStyles.movieOverview} numberOfLines={3}>
+          <Text style={styles.movieOverview} numberOfLines={3}>
             {movie.overview}
           </Text>
         </View>
@@ -96,38 +97,43 @@ const ComingSoonScreen = () => {
   };
 
   return (
-    <View style={comingSoonStyles.container}>
-      <View style={comingSoonStyles.header}>
-        <Text style={comingSoonStyles.welcomeText}>
-          Welcome {userData?.nama || 'to the apps'}!
-        </Text>
-        <Text style={comingSoonStyles.subText}>
-          Check out these upcoming movies!
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#1e90ff', '#00bfff']}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerText}>
+            Welcome, {userName || 'Guest'}!
+          </Text>
+          <Text style={styles.headerSubText}>
+            Check out these upcoming movies!
+          </Text>
+        </View>
+      </LinearGradient>
 
-      <View style={comingSoonStyles.searchContainer}>
+      <View style={styles.searchContainer}>
         <TextInput
-          style={comingSoonStyles.searchInput}
-          placeholder="Search upcoming films..."
-          placeholderTextColor="#666"
+          style={styles.searchInput}
+          placeholder="Search movies..."
+          placeholderTextColor="#888"
           value={searchQuery}
           onChangeText={handleSearch}
         />
       </View>
 
       <ScrollView 
-        style={comingSoonStyles.scrollView}
-        contentContainerStyle={comingSoonStyles.scrollContent}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
       >
         {isLoading ? (
           <ActivityIndicator
             size="large"
             color="#1e90ff"
-            style={comingSoonStyles.loader}
+            style={styles.loader}
           />
         ) : (
-          <View style={comingSoonStyles.moviesContainer}>
+          <View style={styles.moviesContainer}>
             {(searchQuery ? searchResults : comingSoonMovies).map(renderMovieCard)}
           </View>
         )}
@@ -137,41 +143,49 @@ const ComingSoonScreen = () => {
   );
 };
 
-const comingSoonStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
+  },
+  headerGradient: {
+    paddingTop: 60,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   header: {
-    paddingTop: 60,
     paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#1e90ff',
   },
-  welcomeText: {
+  headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 8,
+    marginBottom: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
-  subText: {
+  headerSubText: {
     fontSize: 16,
     color: '#fff',
     opacity: 0.9,
   },
   searchContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginTop: -20,
+    marginBottom: 10,
   },
   searchInput: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-    padding: 12,
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 25,
     fontSize: 16,
-    color: '#333',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   scrollView: {
     flex: 1,
@@ -223,7 +237,7 @@ const comingSoonStyles = StyleSheet.create({
     lineHeight: 20,
   },
   loader: {
-    marginTop: 100,
+    marginTop: 80,
   }
 });
 

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -12,10 +13,7 @@ const ReceiptScreen = ({ route, navigation }) => {
   const { movieData, bookingDetails, userData } = route.params;
 
   const handleDone = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'ScreenPlay' }],
-    });
+    navigation.navigate('NowPlaying');
   };
 
   return (
